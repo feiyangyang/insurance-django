@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4">人工核保工作台</h3>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-4">
+            <div class="text-muted">客户总数</div>
+            <h2>{{ customer_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4">
+            <div class="text-muted">保单总数</div>
+            <h2>{{ policy_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4">
+            <div class="text-muted">待核保任务</div>
+            <h2>{{ pending_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4">
+            <div class="text-muted">已完成审核</div>
+            <h2>{{ finished_count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>最新核保任务</h5>
+        <a class="btn btn-primary btn-sm" href="/admin/underwriting/underwritingtask/add/">新增核保任务</a>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+            <th>任务编号</th>
+            <th>客户姓名</th>
+            <th>产品名称</th>
+            <th>风险等级</th>
+            <th>核保状态</th>
+            <th>创建时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.task_no }}</td>
+            <td>{{ task.policy.customer.name }}</td>
+            <td>{{ task.policy.product_name }}</td>
+            <td>{{ task.get_risk_level_display }}</td>
+            <td>{{ task.get_status_display }}</td>
+            <td>{{ task.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center text-muted">暂无核保任务</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
