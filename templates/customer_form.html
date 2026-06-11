@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4">{{ title }}</h3>
+
+<div class="card p-4" style="max-width:720px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.gender.label_tag }}
+            {{ form.gender }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.age.label_tag }}
+            {{ form.age }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.id_number.label_tag }}
+            {{ form.id_number }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary">返回</a>
+    </form>
+</div>
+{% endblock %}
