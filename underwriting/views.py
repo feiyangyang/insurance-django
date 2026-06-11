@@ -8,6 +8,13 @@ from .services.customer_service import (
     search_customers,
 )
 
+from .forms import PolicyForm
+from .services.policy_service import (
+    search_policies,
+    get_policy_by_id,
+    delete_policy,
+)
+
 
 def dashboard(request):
     customer_count = Customer.objects.count()
@@ -76,3 +83,44 @@ def customer_edit(request, customer_id):
 def customer_delete(request, customer_id):
     delete_customer(customer_id)
     return redirect("customer_list")
+
+def policy_list(request):
+    keyword = request.GET.get("keyword", "")
+    policies = search_policies(keyword)
+
+    return render(request, "policy_list.html", {
+        "policies": policies,
+        "keyword": keyword,
+    })
+
+
+def policy_add(request):
+    form = PolicyForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("policy_list")
+
+    return render(request, "policy_form.html", {
+        "title": "新增保单",
+        "form": form,
+    })
+
+
+def policy_edit(request, policy_id):
+    policy = get_policy_by_id(policy_id)
+    form = PolicyForm(request.POST or None, instance=policy)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("policy_list")
+
+    return render(request, "policy_form.html", {
+        "title": "编辑保单",
+        "form": form,
+    })
+
+
+def policy_delete(request, policy_id):
+    delete_policy(policy_id)
+    return redirect("policy_list")

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4">{{ title }}</h3>
+
+<div class="card p-4">
+    <form method="post">
+        {% csrf_token %}
+
+        <h5 class="mb-3">基础信息</h5>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form.customer.label_tag }}
+                {{ form.customer }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.policy_no.label_tag }}
+                {{ form.policy_no }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.proposal_no.label_tag }}
+                {{ form.proposal_no }}
+            </div>
+        </div>
+
+        <h5 class="mt-3 mb-3">产品信息</h5>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.product_name.label_tag }}
+                {{ form.product_name }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.product_type.label_tag }}
+                {{ form.product_type }}
+            </div>
+        </div>
+
+        <h5 class="mt-3 mb-3">投被保人信息</h5>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form.applicant_name.label_tag }}
+                {{ form.applicant_name }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.insured_name.label_tag }}
+                {{ form.insured_name }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.relation.label_tag }}
+                {{ form.relation }}
+            </div>
+        </div>
+
+        <h5 class="mt-3 mb-3">缴费与保障</h5>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form.premium.label_tag }}
+                {{ form.premium }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.insured_amount.label_tag }}
+                {{ form.insured_amount }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.pay_mode.label_tag }}
+                {{ form.pay_mode }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.pay_period.label_tag }}
+                {{ form.pay_period }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.coverage_period.label_tag }}
+                {{ form.coverage_period }}
+            </div>
+        </div>
+
+        <h5 class="mt-3 mb-3">日期与渠道</h5>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form.effective_date.label_tag }}
+                {{ form.effective_date }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.expiry_date.label_tag }}
+                {{ form.expiry_date }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.sales_channel.label_tag }}
+                {{ form.sales_channel }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.agent_name.label_tag }}
+                {{ form.agent_name }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+            </div>
+        </div>
+
+        <h5 class="mt-3 mb-3">备注</h5>
+        <div class="mb-3">
+            {{ form.remark }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="{% url 'policy_list' %}" class="btn btn-secondary">返回</a>
+    </form>
+</div>
+{% endblock %}

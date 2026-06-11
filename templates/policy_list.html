@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>保单信息管理</h3>
+    <a href="{% url 'policy_add' %}" class="btn btn-primary">新增保单</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="keyword" value="{{ keyword }}" class="form-control"
+               placeholder="搜索保单号、投保单号、客户、产品、投保人、被保人">
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-primary" type="submit">查询</button>
+    </div>
+</form>
+
+<div class="table-card">
+    <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+            <th>保单号</th>
+            <th>客户</th>
+            <th>产品</th>
+            <th>投保人</th>
+            <th>被保人</th>
+            <th>保费</th>
+            <th>保额</th>
+            <th>状态</th>
+            <th style="width:180px;">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for policy in policies %}
+        <tr>
+            <td>{{ policy.policy_no }}</td>
+            <td>{{ policy.customer.name }}</td>
+            <td>{{ policy.product_name }}</td>
+            <td>{{ policy.applicant_name }}</td>
+            <td>{{ policy.insured_name }}</td>
+            <td>{{ policy.premium }}</td>
+            <td>{{ policy.insured_amount }}</td>
+            <td>{{ policy.get_status_display }}</td>
+            <td>
+                <a href="{% url 'policy_edit' policy.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                <a href="{% url 'policy_delete' policy.id %}"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('确认删除该保单吗？')">删除</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="9" class="text-center text-muted">暂无保单数据</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
