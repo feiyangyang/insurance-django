@@ -13,15 +13,28 @@
 <form method="post" class="card" style="max-width: 760px;">
     {% csrf_token %}
     <div class="card-header">
-        <h3 class="card-title">客户资料</h3>
+        <h3 class="card-title">客户基础资料</h3>
     </div>
     <div class="card-body">
         <div class="row g-3">
+            <div class="col-md-4">
+                {{ form.customer_type.label_tag }}
+                {{ form.customer_type }}
+                {{ form.customer_type.errors }}
+            </div>
             <div class="col-md-6">
                 {{ form.name.label_tag }}
                 {{ form.name }}
                 {{ form.name.errors }}
             </div>
+        </div>
+    </div>
+
+    <div class="card-header border-top">
+        <h3 class="card-title">个人客户信息</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
             <div class="col-md-3">
                 {{ form.gender.label_tag }}
                 {{ form.gender }}
@@ -44,6 +57,40 @@
             </div>
         </div>
     </div>
+
+    <div class="card-header border-top">
+        <h3 class="card-title">企业客户信息</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                {{ form.company_name.label_tag }}
+                {{ form.company_name }}
+                {{ form.company_name.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.unified_social_credit_code.label_tag }}
+                {{ form.unified_social_credit_code }}
+                {{ form.unified_social_credit_code.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.contact_person.label_tag }}
+                {{ form.contact_person }}
+                {{ form.contact_person.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.contact_phone.label_tag }}
+                {{ form.contact_phone }}
+                {{ form.contact_phone.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.registered_address.label_tag }}
+                {{ form.registered_address }}
+                {{ form.registered_address.errors }}
+            </div>
+        </div>
+    </div>
+
     <div class="card-footer text-end">
         <a href="{% url 'customer_list' %}" class="btn btn-link">返回</a>
         <button type="submit" class="btn btn-primary">

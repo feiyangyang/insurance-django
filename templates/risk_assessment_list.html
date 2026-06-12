@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Risk</div>
+            <h2 class="page-title">风险评估管理</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">风险评估列表</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter table-sm card-table">
+            <thead>
+            <tr>
+                <th>申请号</th>
+                <th>客户</th>
+                <th>险种</th>
+                <th>保险标的</th>
+                <th>风险等级</th>
+                <th>风险评分</th>
+                <th>更新时间</th>
+                <th class="w-1">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for assessment in assessments %}
+            <tr>
+                <td class="font-monospace">{{ assessment.application.application_no }}</td>
+                <td class="fw-medium">{{ assessment.application.customer }}</td>
+                <td>{{ assessment.application.get_insurance_type_display }}</td>
+                <td>{{ assessment.application.subject_name }}</td>
+                <td><span class="badge bg-orange-lt">{{ assessment.get_risk_level_display }}</span></td>
+                <td>{{ assessment.risk_score }}</td>
+                <td class="text-muted">{{ assessment.updated_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'risk_assessment_edit' assessment.application.id %}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="ti ti-edit me-1"></i>
+                        编辑
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">暂无风险评估数据</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 from underwriting.models import Customer
 
 
@@ -20,6 +22,14 @@ def search_customers(keyword):
     queryset = Customer.objects.all().order_by("-id")
 
     if keyword:
-        queryset = queryset.filter(name__icontains=keyword)
+        queryset = queryset.filter(
+            Q(name__icontains=keyword)
+            | Q(phone__icontains=keyword)
+            | Q(id_number__icontains=keyword)
+            | Q(company_name__icontains=keyword)
+            | Q(unified_social_credit_code__icontains=keyword)
+            | Q(contact_person__icontains=keyword)
+            | Q(contact_phone__icontains=keyword)
+        )
 
     return queryset

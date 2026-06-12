@@ -35,6 +35,7 @@
             <thead>
             <tr>
                 <th>保单号</th>
+                <th>申请号</th>
                 <th>客户</th>
                 <th>产品</th>
                 <th>投保人</th>
@@ -49,6 +50,13 @@
             {% for policy in policies %}
             <tr>
                 <td class="font-monospace">{{ policy.policy_no }}</td>
+                <td class="font-monospace">
+                    {% if policy.application %}
+                        {{ policy.application.application_no }}
+                    {% else %}
+                        {{ policy.proposal_no|default:"-" }}
+                    {% endif %}
+                </td>
                 <td class="fw-medium">{{ policy.customer.name }}</td>
                 <td>{{ policy.product_name }}</td>
                 <td>{{ policy.applicant_name }}</td>
@@ -73,7 +81,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9" class="text-center text-muted py-4">暂无保单数据</td>
+                <td colspan="10" class="text-center text-muted py-4">暂无保单数据</td>
             </tr>
             {% endfor %}
             </tbody>

@@ -154,20 +154,32 @@
                             <span class="nav-link-title">客户管理</span>
                         </a>
                     </li>
+                    <li class="nav-item {% if request.path|slice:':13' == '/application/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'application_list' %}">
+                            <span class="nav-link-icon"><i class="ti ti-clipboard-plus"></i></span>
+                            <span class="nav-link-title">投保申请</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path|slice:':17' == '/risk-assessment/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'risk_assessment_list' %}">
+                            <span class="nav-link-icon"><i class="ti ti-chart-dots"></i></span>
+                            <span class="nav-link-title">风险评估</span>
+                        </a>
+                    </li>
                     <li class="nav-item {% if request.path|slice:':8' == '/policy/' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'policy_list' %}">
                             <span class="nav-link-icon"><i class="ti ti-file-invoice"></i></span>
                             <span class="nav-link-title">保单管理</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/underwriting/underwritingtask/">
+                    <li class="nav-item {% if request.path|slice:':14' == '/underwriting/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'underwriting_task_list' %}">
                             <span class="nav-link-icon"><i class="ti ti-checklist"></i></span>
                             <span class="nav-link-title">核保任务</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/underwriting/auditlog/">
+                    <li class="nav-item {% if request.path|slice:':11' == '/audit-log/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'audit_log_list' %}">
                             <span class="nav-link-icon"><i class="ti ti-clipboard-text"></i></span>
                             <span class="nav-link-title">审核记录</span>
                         </a>

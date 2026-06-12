@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Application</div>
+            <h2 class="page-title">{{ title }}</h2>
+        </div>
+    </div>
+</div>
+
+<form method="post" class="card">
+    {% csrf_token %}
+    <div class="card-header">
+        <h3 class="card-title">申请基础信息</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                {{ form.application_no.label_tag }}
+                {{ form.application_no }}
+                {{ form.application_no.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.customer.label_tag }}
+                {{ form.customer }}
+                {{ form.customer.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.insurance_type.label_tag }}
+                {{ form.insurance_type }}
+                {{ form.insurance_type.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.subject_name.label_tag }}
+                {{ form.subject_name }}
+                {{ form.subject_name.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.subject_address.label_tag }}
+                {{ form.subject_address }}
+                {{ form.subject_address.errors }}
+            </div>
+        </div>
+    </div>
+
+    <div class="card-header border-top">
+        <h3 class="card-title">金额与状态</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                {{ form.insured_amount.label_tag }}
+                {{ form.insured_amount }}
+                {{ form.insured_amount.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.estimated_premium.label_tag }}
+                {{ form.estimated_premium }}
+                {{ form.estimated_premium.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                {{ form.status.errors }}
+            </div>
+        </div>
+    </div>
+
+    <div class="card-header border-top">
+        <h3 class="card-title">备注</h3>
+    </div>
+    <div class="card-body">
+        {{ form.remark }}
+        {{ form.remark.errors }}
+    </div>
+
+    <div class="card-footer text-end">
+        <a href="{% url 'application_list' %}" class="btn btn-link">返回</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy me-1"></i>
+            保存
+        </button>
+    </div>
+</form>
+{% endblock %}

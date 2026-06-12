@@ -5,12 +5,12 @@
     <div class="row align-items-center">
         <div class="col">
             <div class="page-pretitle">Underwriting</div>
-            <h2 class="page-title">人工核保工作台</h2>
+            <h2 class="page-title">财险人工核保工作台</h2>
         </div>
         <div class="col-auto ms-auto">
-            <a class="btn btn-primary btn-sm" href="/admin/underwriting/underwritingtask/add/">
+            <a class="btn btn-primary btn-sm" href="{% url 'application_add' %}">
                 <i class="ti ti-plus me-1"></i>
-                新增核保任务
+                新增投保申请
             </a>
         </div>
     </div>
@@ -34,10 +34,10 @@
         <div class="card card-sm">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <span class="avatar bg-green-lt me-3"><i class="ti ti-file-invoice"></i></span>
+                    <span class="avatar bg-cyan-lt me-3"><i class="ti ti-clipboard-plus"></i></span>
                     <div>
-                        <div class="text-muted">保单总数</div>
-                        <div class="stat-value">{{ policy_count }}</div>
+                        <div class="text-muted">投保申请</div>
+                        <div class="stat-value">{{ application_count }}</div>
                     </div>
                 </div>
             </div>
@@ -60,10 +60,10 @@
         <div class="card card-sm">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <span class="avatar bg-purple-lt me-3"><i class="ti ti-circle-check"></i></span>
+                    <span class="avatar bg-red-lt me-3"><i class="ti ti-alert-triangle"></i></span>
                     <div>
-                        <div class="text-muted">已完成审核</div>
-                        <div class="stat-value">{{ finished_count }}</div>
+                        <div class="text-muted">高风险申请</div>
+                        <div class="stat-value">{{ high_risk_count }}</div>
                     </div>
                 </div>
             </div>
@@ -71,39 +71,138 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">最新核保任务</h3>
+<div class="row row-deck row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">核保通过</div>
+                <div class="stat-value text-success">{{ approved_count }}</div>
+            </div>
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter table-sm card-table">
-            <thead>
-            <tr>
-                <th>任务编号</th>
-                <th>客户姓名</th>
-                <th>产品名称</th>
-                <th>风险等级</th>
-                <th>核保状态</th>
-                <th>创建时间</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for task in tasks %}
-            <tr>
-                <td class="font-monospace">{{ task.task_no }}</td>
-                <td>{{ task.policy.customer.name }}</td>
-                <td>{{ task.policy.product_name }}</td>
-                <td><span class="badge bg-blue-lt">{{ task.get_risk_level_display }}</span></td>
-                <td><span class="badge bg-teal-lt">{{ task.get_status_display }}</span></td>
-                <td class="text-muted">{{ task.created_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center text-muted py-4">暂无核保任务</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">核保拒保</div>
+                <div class="stat-value text-danger">{{ rejected_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">正式保单</div>
+                <div class="stat-value">{{ policy_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">风险分布</div>
+                <div class="small mt-2">
+                    <span class="badge bg-green-lt me-1">低 {{ risk_counts.low }}</span>
+                    <span class="badge bg-yellow-lt me-1">中 {{ risk_counts.medium }}</span>
+                    <span class="badge bg-red-lt">高 {{ risk_counts.high }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">最新核保任务</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter table-sm card-table">
+                    <thead>
+                    <tr>
+                        <th>任务编号</th>
+                        <th>客户</th>
+                        <th>标的/产品</th>
+                        <th>风险等级</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td><a href="{% url 'underwriting_task_detail' task.id %}" class="font-monospace">{{ task.task_no }}</a></td>
+                        <td>
+                            {% if task.application %}
+                                {{ task.application.customer }}
+                            {% elif task.policy %}
+                                {{ task.policy.customer }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.application %}
+                                {{ task.application.subject_name }}
+                            {% elif task.policy %}
+                                {{ task.policy.product_name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-orange-lt">{{ task.get_risk_level_display }}</span></td>
+                        <td><span class="badge bg-blue-lt">{{ task.get_status_display }}</span></td>
+                        <td class="text-muted">{{ task.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">暂无核保任务</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">最新投保申请</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter table-sm card-table">
+                    <thead>
+                    <tr>
+                        <th>申请号</th>
+                        <th>客户</th>
+                        <th>风险</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td class="font-monospace">{{ application.application_no }}</td>
+                        <td>{{ application.customer }}</td>
+                        <td>
+                            {% if application.risk_assessment %}
+                                <span class="badge bg-orange-lt">{{ application.risk_assessment.get_risk_level_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary-lt">未评估</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-blue-lt">{{ application.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">暂无投保申请</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

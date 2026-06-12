@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Underwriting</div>
+            <h2 class="page-title">核保任务管理</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a href="{% url 'underwriting_task_add' %}" class="btn btn-primary btn-sm">
+                <i class="ti ti-plus me-1"></i>
+                新增核保任务
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">核保任务列表</h3>
+        <div class="card-actions">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" value="{{ keyword }}" class="form-control form-control-sm"
+                       placeholder="搜索任务号、申请号、保单号、客户、核保人">
+                <button class="btn btn-outline-primary btn-sm" type="submit">
+                    <i class="ti ti-search me-1"></i>
+                    查询
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter table-sm card-table">
+            <thead>
+            <tr>
+                <th>任务编号</th>
+                <th>来源单号</th>
+                <th>客户</th>
+                <th>标的/产品</th>
+                <th>风险等级</th>
+                <th>状态</th>
+                <th>核保人员</th>
+                <th class="w-1">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td class="font-monospace">{{ task.task_no }}</td>
+                <td class="font-monospace">
+                    {% if task.application %}
+                        {{ task.application.application_no }}
+                    {% elif task.policy %}
+                        {{ task.policy.policy_no }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.application %}
+                        {{ task.application.customer }}
+                    {% elif task.policy %}
+                        {{ task.policy.customer }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.application %}
+                        {{ task.application.subject_name }}
+                    {% elif task.policy %}
+                        {{ task.policy.product_name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td><span class="badge bg-orange-lt">{{ task.get_risk_level_display }}</span></td>
+                <td><span class="badge bg-blue-lt">{{ task.get_status_display }}</span></td>
+                <td>{{ task.assigned_to|default:"-" }}</td>
+                <td>
+                    <div class="btn-list flex-nowrap">
+                        <a href="{% url 'underwriting_task_detail' task.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="ti ti-clipboard-check me-1"></i>
+                            处理
+                        </a>
+                        <a href="{% url 'underwriting_task_edit' task.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-settings me-1"></i>
+                            配置
+                        </a>
+                        <a href="{% url 'underwriting_task_delete' task.id %}"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('确认删除该核保任务吗？')">
+                            <i class="ti ti-trash me-1"></i>
+                            删除
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">暂无核保任务</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

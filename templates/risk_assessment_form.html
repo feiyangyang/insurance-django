@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Risk</div>
+            <h2 class="page-title">风险评估</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-md-4">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">投保申请号</div>
+                <div class="fw-semibold font-monospace">{{ application.application_no }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">客户</div>
+                <div class="fw-semibold">{{ application.customer }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">保险标的</div>
+                <div class="fw-semibold">{{ application.subject_name }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" class="card">
+    {% csrf_token %}
+    <div class="card-header">
+        <h3 class="card-title">评估结果</h3>
+        <div class="card-actions">
+            {% if assessment %}
+                <span class="badge bg-blue-lt">已评估</span>
+            {% else %}
+                <span class="badge bg-secondary-lt">未评估</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                {{ form.risk_level.label_tag }}
+                {{ form.risk_level }}
+                {{ form.risk_level.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.risk_score.label_tag }}
+                {{ form.risk_score }}
+                {{ form.risk_score.errors }}
+            </div>
+            <div class="col-md-12">
+                {{ form.risk_factors.label_tag }}
+                {{ form.risk_factors }}
+                {{ form.risk_factors.errors }}
+            </div>
+            <div class="col-md-12">
+                {{ form.conclusion.label_tag }}
+                {{ form.conclusion }}
+                {{ form.conclusion.errors }}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <a href="{% url 'application_list' %}" class="btn btn-link">返回</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy me-1"></i>
+            保存评估
+        </button>
+    </div>
+</form>
+{% endblock %}

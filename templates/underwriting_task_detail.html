@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Underwriting</div>
+            <h2 class="page-title">核保详情</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a href="{% url 'underwriting_task_edit' task.id %}" class="btn btn-outline-primary btn-sm">
+                <i class="ti ti-settings me-1"></i>
+                配置任务
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">任务编号</div>
+                <div class="fw-semibold font-monospace">{{ task.task_no }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">核保状态</div>
+                <div><span class="badge bg-blue-lt">{{ task.get_status_display }}</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">风险等级</div>
+                <div><span class="badge bg-orange-lt">{{ task.get_risk_level_display }}</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="text-muted">核保人员</div>
+                <div class="fw-semibold">{{ task.assigned_to|default:"-" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-7">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">业务信息</h3>
+            </div>
+            <div class="card-body">
+                {% if task.application %}
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">投保申请号</dt>
+                        <dd class="col-sm-9 font-monospace">{{ task.application.application_no }}</dd>
+                        <dt class="col-sm-3">客户</dt>
+                        <dd class="col-sm-9">{{ task.application.customer }}</dd>
+                        <dt class="col-sm-3">险种</dt>
+                        <dd class="col-sm-9">{{ task.application.get_insurance_type_display }}</dd>
+                        <dt class="col-sm-3">保险标的</dt>
+                        <dd class="col-sm-9">{{ task.application.subject_name }}</dd>
+                        <dt class="col-sm-3">标的地址</dt>
+                        <dd class="col-sm-9">{{ task.application.subject_address|default:"-" }}</dd>
+                        <dt class="col-sm-3">保险金额</dt>
+                        <dd class="col-sm-9">{{ task.application.insured_amount }}</dd>
+                        <dt class="col-sm-3">预估保费</dt>
+                        <dd class="col-sm-9">{{ task.application.estimated_premium }}</dd>
+                    </dl>
+                {% elif task.policy %}
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">保单号</dt>
+                        <dd class="col-sm-9 font-monospace">{{ task.policy.policy_no }}</dd>
+                        <dt class="col-sm-3">客户</dt>
+                        <dd class="col-sm-9">{{ task.policy.customer }}</dd>
+                        <dt class="col-sm-3">产品</dt>
+                        <dd class="col-sm-9">{{ task.policy.product_name }}</dd>
+                        <dt class="col-sm-3">保额</dt>
+                        <dd class="col-sm-9">{{ task.policy.insured_amount }}</dd>
+                    </dl>
+                {% else %}
+                    <div class="text-muted">暂无关联业务信息</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">风险与告知</h3>
+            </div>
+            <div class="card-body">
+                {% if task.application and task.application.risk_assessment %}
+                    <dl class="row">
+                        <dt class="col-sm-3">评估等级</dt>
+                        <dd class="col-sm-9">{{ task.application.risk_assessment.get_risk_level_display }}</dd>
+                        <dt class="col-sm-3">评估评分</dt>
+                        <dd class="col-sm-9">{{ task.application.risk_assessment.risk_score }}</dd>
+                        <dt class="col-sm-3">风险因素</dt>
+                        <dd class="col-sm-9">{{ task.application.risk_assessment.risk_factors|linebreaksbr|default:"-" }}</dd>
+                        <dt class="col-sm-3">评估结论</dt>
+                        <dd class="col-sm-9">{{ task.application.risk_assessment.conclusion|linebreaksbr|default:"-" }}</dd>
+                    </dl>
+                {% endif %}
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">健康/风险告知</dt>
+                    <dd class="col-sm-9">{{ task.health_notice|linebreaksbr|default:"-" }}</dd>
+                    <dt class="col-sm-3">任务备注</dt>
+                    <dd class="col-sm-9">{{ task.remark|linebreaksbr|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <form method="post" class="card">
+            {% csrf_token %}
+            <div class="card-header">
+                <h3 class="card-title">提交核保结论</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ decision_form.status.label_tag }}
+                    {{ decision_form.status }}
+                    {{ decision_form.status.errors }}
+                </div>
+                <div class="mb-3">
+                    {{ decision_form.risk_level.label_tag }}
+                    {{ decision_form.risk_level }}
+                    {{ decision_form.risk_level.errors }}
+                </div>
+                <div>
+                    {{ decision_form.remark.label_tag }}
+                    {{ decision_form.remark }}
+                    {{ decision_form.remark.errors }}
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <a href="{% url 'underwriting_task_list' %}" class="btn btn-link">返回</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-send me-1"></i>
+                    提交结论
+                </button>
+            </div>
+        </form>
+
+        {% if task.status == "approved" and task.application %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">保单生成</h3>
+                </div>
+                <div class="card-body">
+                    {% if task.policy %}
+                        <div class="alert alert-success mb-0">
+                            已生成保单：<span class="font-monospace">{{ task.policy.policy_no }}</span>
+                        </div>
+                    {% elif can_generate_policy %}
+                        <a href="{% url 'generate_policy' task.id %}" class="btn btn-success">
+                            <i class="ti ti-file-plus me-1"></i>
+                            生成保单
+                        </a>
+                    {% else %}
+                        <div class="text-muted">当前任务暂不可生成保单</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title">审核记录</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for log in audit_logs %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div class="fw-semibold">{{ log.get_action_display }} - {{ log.decision }}</div>
+                            <div class="text-muted small">{{ log.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                        <div class="text-muted small">
+                            {{ log.from_status|default:"-" }} → {{ log.to_status|default:"-" }}
+                            {% if log.operator %} · {{ log.operator }}{% endif %}
+                        </div>
+                        {% if log.comment %}
+                            <div class="mt-2">{{ log.comment|linebreaksbr }}</div>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="list-group-item text-muted">暂无审核记录</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

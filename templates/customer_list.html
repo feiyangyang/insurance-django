@@ -22,7 +22,7 @@
         <div class="card-actions">
             <form method="get" class="d-flex gap-2">
                 <input type="text" name="keyword" value="{{ keyword }}" class="form-control form-control-sm"
-                       placeholder="请输入客户姓名搜索">
+                       placeholder="搜索姓名、企业、证件号、联系人">
                 <button class="btn btn-outline-primary btn-sm" type="submit">
                     <i class="ti ti-search me-1"></i>
                     查询
@@ -34,22 +34,42 @@
         <table class="table table-vcenter table-sm card-table">
             <thead>
             <tr>
-                <th>客户姓名</th>
+                <th>客户名称</th>
+                <th>客户类型</th>
                 <th>性别</th>
                 <th>年龄</th>
-                <th>手机号</th>
-                <th>身份证号</th>
+                <th>联系方式</th>
+                <th>证件/信用代码</th>
                 <th class="w-1">操作</th>
             </tr>
             </thead>
             <tbody>
             {% for customer in customers %}
             <tr>
-                <td class="fw-medium">{{ customer.name }}</td>
-                <td>{{ customer.gender }}</td>
-                <td>{{ customer.age }}</td>
-                <td>{{ customer.phone }}</td>
-                <td class="font-monospace text-muted">{{ customer.id_number }}</td>
+                <td class="fw-medium">
+                    {% if customer.customer_type == "company" and customer.company_name %}
+                        {{ customer.company_name }}
+                    {% else %}
+                        {{ customer.name }}
+                    {% endif %}
+                </td>
+                <td><span class="badge bg-blue-lt">{{ customer.get_customer_type_display }}</span></td>
+                <td>{{ customer.gender|default:"-" }}</td>
+                <td>{{ customer.age|default:"-" }}</td>
+                <td>
+                    {% if customer.customer_type == "company" %}
+                        {{ customer.contact_person|default:"-" }} {{ customer.contact_phone|default:"" }}
+                    {% else %}
+                        {{ customer.phone|default:"-" }}
+                    {% endif %}
+                </td>
+                <td class="font-monospace text-muted">
+                    {% if customer.customer_type == "company" %}
+                        {{ customer.unified_social_credit_code|default:"-" }}
+                    {% else %}
+                        {{ customer.id_number|default:"-" }}
+                    {% endif %}
+                </td>
                 <td>
                     <div class="btn-list flex-nowrap">
                         <a href="{% url 'customer_edit' customer.id %}" class="btn btn-sm btn-outline-primary">
@@ -67,7 +87,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">暂无客户数据</td>
+                <td colspan="7" class="text-center text-muted py-4">暂无客户数据</td>
             </tr>
             {% endfor %}
             </tbody>

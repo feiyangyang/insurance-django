@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Application</div>
+            <h2 class="page-title">投保申请管理</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a href="{% url 'application_add' %}" class="btn btn-primary btn-sm">
+                <i class="ti ti-plus me-1"></i>
+                新增投保申请
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">投保申请列表</h3>
+        <div class="card-actions">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" value="{{ keyword }}" class="form-control form-control-sm"
+                       placeholder="搜索申请号、客户、标的、地址">
+                <button class="btn btn-outline-primary btn-sm" type="submit">
+                    <i class="ti ti-search me-1"></i>
+                    查询
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter table-sm card-table">
+            <thead>
+            <tr>
+                <th>申请号</th>
+                <th>客户</th>
+                <th>险种</th>
+                <th>保险标的</th>
+                <th>保险金额</th>
+                <th>预估保费</th>
+                <th>风险评估</th>
+                <th>状态</th>
+                <th class="w-1">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for application in applications %}
+            <tr>
+                <td class="font-monospace">{{ application.application_no }}</td>
+                <td class="fw-medium">{{ application.customer }}</td>
+                <td>{{ application.get_insurance_type_display }}</td>
+                <td>{{ application.subject_name }}</td>
+                <td>{{ application.insured_amount }}</td>
+                <td>{{ application.estimated_premium }}</td>
+                <td>
+                    {% if application.risk_assessment %}
+                        <span class="badge bg-orange-lt">
+                            {{ application.risk_assessment.get_risk_level_display }}
+                            {{ application.risk_assessment.risk_score }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary-lt">未评估</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge bg-blue-lt">{{ application.get_status_display }}</span></td>
+                <td>
+                    <div class="btn-list flex-nowrap">
+                        <a href="{% url 'risk_assessment_edit' application.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="ti ti-chart-dots me-1"></i>
+                            评估
+                        </a>
+                        <a href="{% url 'underwriting_task_add' %}?application={{ application.id }}"
+                           class="btn btn-sm btn-outline-success">
+                            <i class="ti ti-checklist me-1"></i>
+                            核保
+                        </a>
+                        <a href="{% url 'application_edit' application.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-edit me-1"></i>
+                            编辑
+                        </a>
+                        <a href="{% url 'application_delete' application.id %}"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('确认删除该投保申请吗？')">
+                            <i class="ti ti-trash me-1"></i>
+                            删除
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">暂无投保申请数据</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

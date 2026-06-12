@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Audit</div>
+            <h2 class="page-title">审核记录</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">流程留痕</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter table-sm card-table">
+            <thead>
+            <tr>
+                <th>时间</th>
+                <th>任务编号</th>
+                <th>操作类型</th>
+                <th>状态变化</th>
+                <th>结论</th>
+                <th>操作人</th>
+                <th>意见</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td class="text-muted">{{ log.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="font-monospace">{{ log.task.task_no }}</td>
+                <td>{{ log.get_action_display }}</td>
+                <td>{{ log.from_status|default:"-" }} → {{ log.to_status|default:"-" }}</td>
+                <td><span class="badge bg-blue-lt">{{ log.decision }}</span></td>
+                <td>{{ log.operator|default:"-" }}</td>
+                <td>{{ log.comment|truncatechars:40 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted py-4">暂无审核记录</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
