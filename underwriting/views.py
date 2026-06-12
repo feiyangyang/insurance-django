@@ -14,6 +14,7 @@ from .services.policy_service import (
     get_policy_by_id,
     delete_policy,
 )
+from .services.system_check_service import get_database_check_status
 
 
 def dashboard(request):
@@ -124,3 +125,7 @@ def policy_edit(request, policy_id):
 def policy_delete(request, policy_id):
     delete_policy(policy_id)
     return redirect("policy_list")
+
+
+def system_db_check(request):
+    return render(request, "system_db_check.html", get_database_check_status())
