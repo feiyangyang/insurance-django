@@ -1,58 +1,84 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>系统数据库检测</h3>
-    <span class="badge text-bg-secondary">只读检测</span>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card p-4">
-            <div class="text-muted">当前数据库引擎</div>
-            <h5 class="mt-2 mb-0">{{ database_engine }}</h5>
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">System</div>
+            <h2 class="page-title">系统数据库检测</h2>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-4">
-            <div class="text-muted">是否存在 DATABASE_URL</div>
-            <h5 class="mt-2 mb-0">
-                {% if has_database_url %}
-                    是
-                {% else %}
-                    否
-                {% endif %}
-            </h5>
+        <div class="col-auto ms-auto">
+            <span class="badge bg-blue-lt">只读检测</span>
         </div>
     </div>
 </div>
 
-<div class="table-card">
-    <table class="table table-hover align-middle mb-0">
-        <thead>
-        <tr>
-            <th>检测项</th>
-            <th>当前值</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>客户数量</td>
-            <td>{{ customer_count }}</td>
-        </tr>
-        <tr>
-            <td>保单数量</td>
-            <td>{{ policy_count }}</td>
-        </tr>
-        <tr>
-            <td>核保任务数量</td>
-            <td>{{ underwriting_task_count }}</td>
-        </tr>
-        <tr>
-            <td>审核记录数量</td>
-            <td>{{ audit_log_count }}</td>
-        </tr>
-        </tbody>
-    </table>
+<div class="row row-cards mb-3">
+    <div class="col-md-6">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar bg-blue-lt me-3"><i class="ti ti-database"></i></span>
+                    <div>
+                        <div class="text-muted">当前数据库引擎</div>
+                        <div class="fw-semibold">{{ database_engine }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar bg-green-lt me-3"><i class="ti ti-plug-connected"></i></span>
+                    <div>
+                        <div class="text-muted">是否存在 DATABASE_URL</div>
+                        <div class="fw-semibold">
+                            {% if has_database_url %}
+                                是
+                            {% else %}
+                                否
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">数据表统计</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter table-sm card-table">
+            <thead>
+            <tr>
+                <th>检测项</th>
+                <th>当前值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>客户数量</td>
+                <td class="fw-semibold">{{ customer_count }}</td>
+            </tr>
+            <tr>
+                <td>保单数量</td>
+                <td class="fw-semibold">{{ policy_count }}</td>
+            </tr>
+            <tr>
+                <td>核保任务数量</td>
+                <td class="fw-semibold">{{ underwriting_task_count }}</td>
+            </tr>
+            <tr>
+                <td>审核记录数量</td>
+                <td class="fw-semibold">{{ audit_log_count }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
