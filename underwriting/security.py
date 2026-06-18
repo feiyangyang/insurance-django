@@ -1,12 +1,38 @@
 from functools import wraps
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
 from .models import OperationLog, PermissionPoint, UserProfile
 
+DEMO_PERMISSION_CODES = {
+    "customer.create",
+    "customer.edit",
+    "customer.delete",
+    "application.create",
+    "application.edit",
+    "application.delete",
+    "risk.edit",
+    "underwriting.create",
+    "underwriting.decision",
+    "underwriting.edit",
+    "underwriting.delete",
+    "policy.edit",
+    "policy.delete",
+    "system.form_config",
+    "system.user",
+    "system.role",
+    "system.company",
+    "system.department",
+    "system.operation_log",
+    "system.db_check",
+}
+
 
 def get_user_permissions(user):
+    if settings.PUBLIC_DEMO_MODE:
+        return DEMO_PERMISSION_CODES | set(PermissionPoint.objects.values_list("code", flat=True))
     if not user.is_authenticated:
         return set()
     if user.is_superuser:
@@ -28,6 +54,12 @@ def user_has_permission(user, permission_code):
 
 def permission_required(permission_code):
     def decorator(view_func):
+        if settings.PUBLIC_DEMO_MODE:
+            @wraps(view_func)
+            def demo_wrapped(request, *args, **kwargs):
+                return view_func(request, *args, **kwargs)
+            return demo_wrapped
+
         @wraps(view_func)
         @login_required
         def wrapped(request, *args, **kwargs):

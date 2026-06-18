@@ -57,6 +57,8 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
+PUBLIC_DEMO_MODE = env_bool('PUBLIC_DEMO_MODE', default=False)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -78,10 +80,15 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'underwriting.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if not PUBLIC_DEMO_MODE:
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index('django.contrib.messages.middleware.MessageMiddleware'),
+        'underwriting.middleware.LoginRequiredMiddleware',
+    )
 
 ROOT_URLCONF = 'config.urls'
 

@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from .security import get_user_permissions
 
 
@@ -6,4 +8,5 @@ def permission_context(request):
     return {
         "current_permissions": permissions,
         "can": lambda code: code in permissions,
+        "public_demo_mode": settings.PUBLIC_DEMO_MODE,
     }
