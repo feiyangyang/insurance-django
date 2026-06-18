@@ -7,12 +7,6 @@
             <div class="page-pretitle">Policy</div>
             <h2 class="page-title">保单信息管理</h2>
         </div>
-        <div class="col-auto ms-auto">
-            <a href="{% url 'policy_add' %}" class="btn btn-primary btn-sm">
-                <i class="ti ti-plus me-1"></i>
-                新增保单
-            </a>
-        </div>
     </div>
 </div>
 
@@ -66,16 +60,20 @@
                 <td><span class="badge bg-blue-lt">{{ policy.get_status_display }}</span></td>
                 <td>
                     <div class="btn-list flex-nowrap">
+                        {% if request.user.is_superuser or 'policy.edit' in current_permissions %}
                         <a href="{% url 'policy_edit' policy.id %}" class="btn btn-sm btn-outline-primary">
                             <i class="ti ti-edit me-1"></i>
                             编辑
                         </a>
+                        {% endif %}
+                        {% if request.user.is_superuser or 'policy.delete' in current_permissions %}
                         <a href="{% url 'policy_delete' policy.id %}"
                            class="btn btn-sm btn-outline-danger"
                            onclick="return confirm('确认删除该保单吗？')">
                             <i class="ti ti-trash me-1"></i>
                             删除
                         </a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

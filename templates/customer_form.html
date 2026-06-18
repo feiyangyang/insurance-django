@@ -16,6 +16,11 @@
         <h3 class="card-title">客户基础资料</h3>
     </div>
     <div class="card-body">
+        {% if form.instance.pk %}
+        <div class="alert alert-info py-2">
+            系统客户ID：<span class="font-monospace">{{ form.instance.customer_no }}</span>
+        </div>
+        {% endif %}
         <div class="row g-3">
             <div class="col-md-4">
                 {{ form.customer_type.label_tag }}
@@ -30,10 +35,10 @@
         </div>
     </div>
 
-    <div class="card-header border-top">
+    <div class="card-header border-top" data-customer-section="personal">
         <h3 class="card-title">个人客户信息</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body" data-customer-section="personal">
         <div class="row g-3">
             <div class="col-md-3">
                 {{ form.gender.label_tag }}
@@ -58,10 +63,10 @@
         </div>
     </div>
 
-    <div class="card-header border-top">
+    <div class="card-header border-top" data-customer-section="company">
         <h3 class="card-title">企业客户信息</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body" data-customer-section="company">
         <div class="row g-3">
             <div class="col-md-6">
                 {{ form.company_name.label_tag }}
@@ -99,4 +104,26 @@
         </button>
     </div>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const customerType = document.getElementById("id_customer_type");
+    const sections = document.querySelectorAll("[data-customer-section]");
+
+    function syncCustomerSections() {
+        const value = customerType ? customerType.value : "personal";
+
+        sections.forEach(function (section) {
+            section.hidden = section.dataset.customerSection !== value;
+        });
+    }
+
+    if (customerType) {
+        customerType.addEventListener("change", syncCustomerSections);
+        syncCustomerSections();
+    }
+});
+</script>
 {% endblock %}

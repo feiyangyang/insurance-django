@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">System Backend</div>
+            <h2 class="page-title">表单配置</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a class="btn btn-primary btn-sm" href="{% url 'form_configuration' %}?mode=new&form_type={{ selected_form_type }}&customer_type={{ selected_customer_type }}">
+                <i class="ti ti-plus me-1"></i>
+                新建模板
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="btn-list">
+            <a class="btn btn-sm {% if selected_form_type == 'customer' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+               href="{% url 'form_configuration' %}?form_type=customer&customer_type={{ selected_customer_type }}">
+                <i class="ti ti-users me-1"></i>
+                客户管理表单
+            </a>
+            <a class="btn btn-sm {% if selected_form_type == 'application' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+               href="{% url 'form_configuration' %}?form_type=application&customer_type={{ selected_customer_type }}">
+                <i class="ti ti-clipboard-plus me-1"></i>
+                投保申请表单
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">模板列表</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for template in templates %}
+                <a class="list-group-item list-group-item-action {% if selected_template and template.id == selected_template.id %}active{% endif %}"
+                   href="{% url 'form_configuration' %}?form_type={{ selected_form_type }}&template={{ template.id }}&customer_type={{ selected_customer_type }}">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-semibold text-truncate">{{ template.name }}</span>
+                        {% if template.is_active %}
+                        <span class="badge bg-green-lt">启用</span>
+                        {% else %}
+                        <span class="badge bg-secondary-lt">停用</span>
+                        {% endif %}
+                    </div>
+                    <div class="small text-muted mt-1">
+                        {{ template.code }} · {{ template.get_form_type_display }} · {{ template.get_customer_type_display }}
+                    </div>
+                </a>
+                {% empty %}
+                <div class="empty py-4">
+                    <div class="empty-icon"><i class="ti ti-forms"></i></div>
+                    <p class="empty-title">暂无模板</p>
+                    <p class="empty-subtitle text-muted">在右侧填写模板信息后保存。</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">字段配置</h3>
+                {% if selected_template %}
+                <div class="card-actions">
+                    <a class="btn btn-outline-primary btn-sm"
+                       href="{% url 'form_configuration' %}?form_type={{ selected_form_type }}&template={{ selected_template.id }}&customer_type={{ selected_customer_type }}">
+                        <i class="ti ti-plus me-1"></i>
+                        新增字段
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% if selected_template %}
+            <div class="table-responsive">
+                <table class="table table-vcenter table-sm card-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 4rem;">排序</th>
+                        <th>字段</th>
+                        <th>控件</th>
+                        <th>展示</th>
+                        <th style="width: 4rem;">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for field in all_fields %}
+                    <tr class="{% if selected_field and field.id == selected_field.id %}table-active{% endif %}">
+                        <td>{{ field.sort_order }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ field.field_label }}</div>
+                            <div class="text-muted small">{{ field.field_key }}</div>
+                        </td>
+                        <td>{{ field.get_control_type_display }}</td>
+                        <td>
+                            <span class="badge bg-blue-lt">{{ field.get_customer_type_display }}</span>
+                            {% if field.is_required %}<span class="badge bg-red-lt">必填</span>{% endif %}
+                            {% if not field.is_enabled %}<span class="badge bg-secondary-lt">停用</span>{% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-ghost-primary btn-sm"
+                               href="{% url 'form_configuration' %}?form_type={{ selected_form_type }}&template={{ selected_template.id }}&field={{ field.id }}&customer_type={{ selected_customer_type }}">
+                                编辑
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">暂无字段，请先新增字段配置</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty py-4">
+                <div class="empty-icon"><i class="ti ti-list-details"></i></div>
+                <p class="empty-title">先创建模板</p>
+                <p class="empty-subtitle text-muted">模板保存后即可配置字段。</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if selected_template %}
+        <form method="post" class="card">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if selected_field %}update_field{% else %}create_field{% endif %}">
+            <input type="hidden" name="customer_type" value="{{ selected_customer_type }}">
+            <div class="card-header">
+                <h3 class="card-title">{% if selected_field %}编辑字段{% else %}新增字段{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                {{ field_form.non_field_errors }}
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        {{ field_form.sort_order.label_tag }}
+                        {{ field_form.sort_order }}
+                        {{ field_form.sort_order.errors }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ field_form.field_label.label_tag }}
+                        {{ field_form.field_label }}
+                        {{ field_form.field_label.errors }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ field_form.field_key.label_tag }}
+                        {{ field_form.field_key }}
+                        {{ field_form.field_key.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ field_form.control_type.label_tag }}
+                        {{ field_form.control_type }}
+                        {{ field_form.control_type.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ field_form.customer_type.label_tag }}
+                        {{ field_form.customer_type }}
+                        {{ field_form.customer_type.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ field_form.default_value.label_tag }}
+                        {{ field_form.default_value }}
+                        {{ field_form.default_value.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ field_form.help_text.label_tag }}
+                        {{ field_form.help_text }}
+                        {{ field_form.help_text.errors }}
+                    </div>
+                    <div class="col-12">
+                        {{ field_form.option_values.label_tag }}
+                        {{ field_form.option_values }}
+                        {{ field_form.option_values.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-check">
+                            {{ field_form.is_required }}
+                            <span class="form-check-label">{{ field_form.is_required.label }}</span>
+                        </label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-check">
+                            {{ field_form.is_enabled }}
+                            <span class="form-check-label">{{ field_form.is_enabled.label }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                {% if selected_field %}
+                <button type="submit" name="action" value="delete_field" class="btn btn-outline-danger"
+                        onclick="return confirm('确认删除该字段配置？');">
+                    <i class="ti ti-trash me-1"></i>
+                    删除字段
+                </button>
+                {% else %}
+                <span></span>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-device-floppy me-1"></i>
+                    保存字段
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <form method="post" class="card mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if selected_template %}update_template{% else %}create_template{% endif %}">
+            <input type="hidden" name="customer_type" value="{{ selected_customer_type }}">
+            <div class="card-header">
+                <h3 class="card-title">{% if selected_template %}模板信息{% else %}新建模板{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                {{ template_form.non_field_errors }}
+                <div class="mb-3">
+                    {{ template_form.name.label_tag }}
+                    {{ template_form.name }}
+                    {{ template_form.name.errors }}
+                </div>
+                <div class="mb-3">
+                    {{ template_form.code.label_tag }}
+                    {{ template_form.code }}
+                    {{ template_form.code.errors }}
+                </div>
+                <div class="mb-3">
+                    {{ template_form.form_type.label_tag }}
+                    {{ template_form.form_type }}
+                    {{ template_form.form_type.errors }}
+                </div>
+                <div class="mb-3">
+                    {{ template_form.customer_type.label_tag }}
+                    {{ template_form.customer_type }}
+                    {{ template_form.customer_type.errors }}
+                </div>
+                <div class="mb-3">
+                    {{ template_form.description.label_tag }}
+                    {{ template_form.description }}
+                    {{ template_form.description.errors }}
+                </div>
+                <label class="form-check">
+                    {{ template_form.is_active }}
+                    <span class="form-check-label">{{ template_form.is_active.label }}</span>
+                </label>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                {% if selected_template %}
+                <button type="submit" name="action" value="delete_template" class="btn btn-outline-danger"
+                        onclick="return confirm('确认删除该模板及其字段配置？');">
+                    <i class="ti ti-trash me-1"></i>
+                    删除模板
+                </button>
+                {% else %}
+                <span></span>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-device-floppy me-1"></i>
+                    保存模板
+                </button>
+            </div>
+        </form>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">前端预览</h3>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-2 align-items-end mb-3">
+                    {% if selected_template %}
+                    <input type="hidden" name="template" value="{{ selected_template.id }}">
+                    {% endif %}
+                    <input type="hidden" name="form_type" value="{{ selected_form_type }}">
+                    {% if selected_field %}
+                    <input type="hidden" name="field" value="{{ selected_field.id }}">
+                    {% endif %}
+                    <div class="col-8">
+                        <label for="customer_type">展示类型</label>
+                        <select id="customer_type" name="customer_type" class="form-select">
+                            <option value="personal" {% if selected_customer_type == "personal" %}selected{% endif %}>个人客户</option>
+                            <option value="company" {% if selected_customer_type == "company" %}selected{% endif %}>企业客户</option>
+                            <option value="all" {% if selected_customer_type == "all" %}selected{% endif %}>全部字段</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="ti ti-eye me-1"></i>
+                            预览
+                        </button>
+                    </div>
+                </form>
+
+                {% if configured_fields %}
+                <div class="row g-3">
+                    {% for field in configured_fields %}
+                    <div class="{% if field.control_type == 'textarea' %}col-12{% else %}col-md-6 col-lg-12{% endif %}">
+                        <label for="preview_{{ field.field_key }}">
+                            {{ field.field_label }}
+                            {% if field.is_required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {% if field.control_type == "textarea" %}
+                            <textarea id="preview_{{ field.field_key }}" class="form-control" rows="3" placeholder="{{ field.help_text }}">{{ field.default_value }}</textarea>
+                        {% elif field.control_type == "select" %}
+                            <select id="preview_{{ field.field_key }}" class="form-select">
+                                {% for option in field.option_values.splitlines %}
+                                <option {% if option == field.default_value %}selected{% endif %}>{{ option }}</option>
+                                {% empty %}
+                                <option>{{ field.default_value|default:"请选择" }}</option>
+                                {% endfor %}
+                            </select>
+                        {% elif field.control_type == "checkbox" %}
+                            <label class="form-check">
+                                <input id="preview_{{ field.field_key }}" class="form-check-input" type="checkbox" {% if field.default_value %}checked{% endif %}>
+                                <span class="form-check-label">{{ field.help_text|default:"是" }}</span>
+                            </label>
+                        {% else %}
+                            <input id="preview_{{ field.field_key }}"
+                                   type="{% if field.control_type == 'number' %}number{% elif field.control_type == 'date' %}date{% else %}text{% endif %}"
+                                   class="form-control"
+                                   value="{{ field.default_value }}"
+                                   placeholder="{{ field.help_text }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty py-4">
+                    <div class="empty-icon"><i class="ti ti-adjustments"></i></div>
+                    <p class="empty-title">暂无可预览字段</p>
+                    <p class="empty-subtitle text-muted">新增字段或切换展示类型后查看。</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .help-shell {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .flow-strip {
+        display: grid;
+        gap: .75rem;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .flow-node {
+        background: #ffffff;
+        border: 1px solid #d9e2ec;
+        border-radius: 6px;
+        min-height: 8.75rem;
+        padding: .9rem;
+        position: relative;
+    }
+
+    .flow-node:not(:last-child)::after {
+        color: #8aa0b6;
+        content: "→";
+        font-size: 1.2rem;
+        font-weight: 700;
+        position: absolute;
+        right: -.65rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+    }
+
+    .flow-index {
+        align-items: center;
+        background: #0f6b6f;
+        border-radius: 50%;
+        color: #ffffff;
+        display: inline-flex;
+        font-size: .72rem;
+        font-weight: 700;
+        height: 1.65rem;
+        justify-content: center;
+        margin-bottom: .55rem;
+        width: 1.65rem;
+    }
+
+    .flow-title {
+        color: #182433;
+        font-size: .9rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: .35rem;
+    }
+
+    .flow-copy {
+        color: #667085;
+        font-size: .75rem;
+        line-height: 1.5;
+    }
+
+    .lane-grid {
+        display: grid;
+        gap: .75rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .lane {
+        border: 1px solid #d9e2ec;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .lane-head {
+        background: #eef6f6;
+        border-bottom: 1px solid #d9e2ec;
+        color: #0f4f52;
+        font-weight: 700;
+        padding: .65rem .8rem;
+    }
+
+    .lane-body {
+        background: #ffffff;
+        padding: .8rem;
+    }
+
+    .mini-step {
+        align-items: flex-start;
+        border-bottom: 1px dashed #d0d7de;
+        display: flex;
+        gap: .55rem;
+        padding: .55rem 0;
+    }
+
+    .mini-step:first-child {
+        padding-top: 0;
+    }
+
+    .mini-step:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .mini-dot {
+        background: #206bc4;
+        border-radius: 50%;
+        flex: 0 0 .5rem;
+        height: .5rem;
+        margin-top: .35rem;
+        width: .5rem;
+    }
+
+    .decision-map {
+        display: grid;
+        gap: .75rem;
+        grid-template-columns: 1.1fr .9fr;
+    }
+
+    .decision-box {
+        background: #fffdf7;
+        border: 1px solid #ead7a4;
+        border-radius: 6px;
+        padding: .85rem;
+    }
+
+    .update-note {
+        background: #f4f7fb;
+        border: 1px solid #d9e2ec;
+        border-radius: 6px;
+        padding: .85rem 1rem;
+    }
+
+    @media (max-width: 1199.98px) {
+        .flow-strip {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .flow-node:nth-child(3)::after {
+            content: "";
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .flow-strip,
+        .lane-grid,
+        .decision-map {
+            grid-template-columns: 1fr;
+        }
+
+        .flow-node:not(:last-child)::after {
+            bottom: -.85rem;
+            content: "↓";
+            left: 50%;
+            right: auto;
+            top: auto;
+            transform: translateX(-50%);
+        }
+    }
+</style>
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Help Center</div>
+            <h2 class="page-title">帮助中心</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <span class="badge bg-green-lt">随功能同步维护</span>
+        </div>
+    </div>
+</div>
+
+<div class="help-shell">
+    <div class="update-note">
+        <div class="fw-semibold mb-1">维护约定</div>
+        <div class="text-muted">
+            每次新增、删除或调整业务功能时，同步更新本帮助中心的流程图和操作说明，确保一线用户看到的流程与系统实际页面一致。
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">主业务流程</h3>
+        </div>
+        <div class="card-body">
+            <div class="flow-strip">
+                <div class="flow-node">
+                    <div class="flow-index">1</div>
+                    <div class="flow-title">创建客户</div>
+                    <div class="flow-copy">进入客户管理，新增个人或企业客户。系统自动生成客户ID，便于后续检索和关联。</div>
+                </div>
+                <div class="flow-node">
+                    <div class="flow-index">2</div>
+                    <div class="flow-title">提交投保申请</div>
+                    <div class="flow-copy">进入投保申请，搜索并选择已有客户，按后台配置字段填写申请信息。</div>
+                </div>
+                <div class="flow-node">
+                    <div class="flow-index">3</div>
+                    <div class="flow-title">风险评估</div>
+                    <div class="flow-copy">对申请进行风险评分、风险等级判断和评估结论录入，为核保提供依据。</div>
+                </div>
+                <div class="flow-node">
+                    <div class="flow-index">4</div>
+                    <div class="flow-title">创建核保任务</div>
+                    <div class="flow-copy">从投保申请发起核保任务，指定核保人员，补充健康告知和备注。</div>
+                </div>
+                <div class="flow-node">
+                    <div class="flow-index">5</div>
+                    <div class="flow-title">提交核保结论</div>
+                    <div class="flow-copy">核保人员在任务详情中提交通过、拒保、加费、延期、补充资料等结论。</div>
+                </div>
+                <div class="flow-node">
+                    <div class="flow-index">6</div>
+                    <div class="flow-title">维护保单</div>
+                    <div class="flow-copy">保单只允许通过核保流程产生，保单管理中只编辑保单信息并查看投保人、申请和评估信息。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lane-grid">
+        <div class="lane">
+            <div class="lane-head"><i class="ti ti-users me-1"></i>客户与投保</div>
+            <div class="lane-body">
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>客户管理</strong><div class="text-muted small">维护个人客户、企业客户和系统自动客户ID。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>投保申请</strong><div class="text-muted small">客户选择使用搜索列表，字段由投保申请表单配置控制。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>表单配置</strong><div class="text-muted small">客户管理表单和投保申请表单分开维护，避免配置混用。</div></div></div>
+            </div>
+        </div>
+
+        <div class="lane">
+            <div class="lane-head"><i class="ti ti-checklist me-1"></i>评估与核保</div>
+            <div class="lane-body">
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>风险评估</strong><div class="text-muted small">记录风险等级、评分、风险因素和评估结论。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>核保任务</strong><div class="text-muted small">围绕投保申请或保单开展核保，记录处理状态和意见。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>审核记录</strong><div class="text-muted small">保留核保结论流转和状态变化，便于追溯。</div></div></div>
+            </div>
+        </div>
+
+        <div class="lane">
+            <div class="lane-head"><i class="ti ti-settings me-1"></i>系统后台</div>
+            <div class="lane-body">
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>用户与组织</strong><div class="text-muted small">维护账号、密码、所属公司、部门、角色和备注。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>角色权限</strong><div class="text-muted small">按角色授权到页面和按钮级操作，后端同步校验。</div></div></div>
+                <div class="mini-step"><span class="mini-dot"></span><div><strong>操作日志</strong><div class="text-muted small">记录登录、配置、客户、投保、核保、保单等关键操作。</div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="decision-map">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">核保结论走向</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="decision-box">
+                            <div class="fw-semibold text-success">通过</div>
+                            <div class="text-muted small">申请状态进入通过，后续由保单流程维护保单信息。</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="decision-box">
+                            <div class="fw-semibold text-danger">拒保</div>
+                            <div class="text-muted small">申请结束，保留审核意见和拒保原因。</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="decision-box">
+                            <div class="fw-semibold text-warning">加费 / 除外 / 延期</div>
+                            <div class="text-muted small">记录特殊承保条件，供保单维护和客户沟通使用。</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="decision-box">
+                            <div class="fw-semibold text-primary">补充资料</div>
+                            <div class="text-muted small">申请回到资料补充状态，补齐后可继续核保。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">常用入口</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action" href="{% url 'customer_list' %}"><i class="ti ti-users me-2"></i>客户管理</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'application_list' %}"><i class="ti ti-clipboard-plus me-2"></i>投保申请</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'underwriting_task_list' %}"><i class="ti ti-checklist me-2"></i>核保任务</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'policy_list' %}"><i class="ti ti-file-invoice me-2"></i>保单管理</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'form_configuration' %}"><i class="ti ti-forms me-2"></i>表单配置</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'operation_log_list' %}"><i class="ti ti-history me-2"></i>操作日志</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

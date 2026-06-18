@@ -1,5 +1,144 @@
 from django import forms
-from .models import Customer, InsuranceApplication, Policy, RiskAssessment, UnderwritingTask
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
+from .models import (
+    Company,
+    Customer,
+    Department,
+    FormFieldConfiguration,
+    FormTemplate,
+    InsuranceApplication,
+    PermissionPoint,
+    Policy,
+    RiskAssessment,
+    SystemRole,
+    UnderwritingTask,
+    UserProfile,
+)
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label="登录账号",
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "请输入账号"}),
+    )
+    password = forms.CharField(
+        label="登录密码",
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "请输入密码"}),
+    )
+
+
+class CompanyForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        fields = ["name", "code", "is_active", "remark"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "code": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "remark": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ["company", "name", "code", "is_active", "remark"]
+        widgets = {
+            "company": forms.Select(attrs={"class": "form-select"}),
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "code": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "remark": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+
+class SystemRoleForm(forms.ModelForm):
+    permissions = forms.ModelMultipleChoiceField(
+        label="授权权限",
+        queryset=PermissionPoint.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = SystemRole
+        fields = ["name", "code", "permissions", "is_active", "remark"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "code": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "remark": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["permissions"].queryset = PermissionPoint.objects.all()
+
+
+class SystemUserForm(forms.Form):
+    username = forms.CharField(label="登录账号", max_length=150, widget=forms.TextInput(attrs={"class": "form-control"}))
+    full_name = forms.CharField(label="用户姓名", max_length=150, required=False, widget=forms.TextInput(attrs={"class": "form-control"}))
+    password = forms.CharField(label="登录密码", required=False, widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    password_confirm = forms.CharField(label="确认密码", required=False, widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    company = forms.ModelChoiceField(label="所属公司", queryset=Company.objects.none(), required=False, widget=forms.Select(attrs={"class": "form-select"}))
+    department = forms.ModelChoiceField(label="所属部门", queryset=Department.objects.none(), required=False, widget=forms.Select(attrs={"class": "form-select"}))
+    roles = forms.ModelMultipleChoiceField(label="角色", queryset=SystemRole.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
+    is_active = forms.BooleanField(label="启用", required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
+    remark = forms.CharField(label="备注", required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}))
+
+    def __init__(self, *args, user_instance=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_instance = user_instance
+        self.fields["company"].queryset = Company.objects.filter(is_active=True)
+        self.fields["department"].queryset = Department.objects.filter(is_active=True).select_related("company")
+        self.fields["roles"].queryset = SystemRole.objects.filter(is_active=True)
+        if user_instance:
+            profile, _ = UserProfile.objects.get_or_create(user=user_instance)
+            self.fields["password"].required = False
+            self.fields["password_confirm"].required = False
+            self.initial.update({
+                "username": user_instance.username,
+                "full_name": user_instance.get_full_name(),
+                "company": profile.company_id,
+                "department": profile.department_id,
+                "roles": profile.roles.all(),
+                "is_active": user_instance.is_active,
+                "remark": profile.remark,
+            })
+        else:
+            self.fields["password"].required = True
+            self.fields["password_confirm"].required = True
+            self.initial["is_active"] = True
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        queryset = User.objects.filter(username=username)
+        if self.user_instance:
+            queryset = queryset.exclude(id=self.user_instance.id)
+        if queryset.exists():
+            raise forms.ValidationError("登录账号已存在")
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
+        if password or password_confirm:
+            if password != password_confirm:
+                raise forms.ValidationError("两次输入的密码不一致")
+        return cleaned_data
+
+
+class PasswordResetForm(forms.Form):
+    password = forms.CharField(label="新密码", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    password_confirm = forms.CharField(label="确认密码", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("password") != cleaned_data.get("password_confirm"):
+            raise forms.ValidationError("两次输入的密码不一致")
+        return cleaned_data
 
 
 class CustomerForm(forms.ModelForm):
@@ -33,6 +172,56 @@ class CustomerForm(forms.ModelForm):
             "contact_person": forms.TextInput(attrs={"class": "form-control"}),
             "contact_phone": forms.TextInput(attrs={"class": "form-control"}),
             "registered_address": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+
+class FormTemplateForm(forms.ModelForm):
+    class Meta:
+        model = FormTemplate
+        fields = [
+            "name",
+            "code",
+            "form_type",
+            "customer_type",
+            "description",
+            "is_active",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "例如：客户信息采集模板"}),
+            "code": forms.TextInput(attrs={"class": "form-control", "placeholder": "例如：customer-intake"}),
+            "form_type": forms.Select(attrs={"class": "form-select"}),
+            "customer_type": forms.Select(attrs={"class": "form-select"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class FormFieldConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = FormFieldConfiguration
+        fields = [
+            "sort_order",
+            "field_label",
+            "field_key",
+            "control_type",
+            "customer_type",
+            "is_required",
+            "default_value",
+            "option_values",
+            "help_text",
+            "is_enabled",
+        ]
+        widgets = {
+            "sort_order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "field_label": forms.TextInput(attrs={"class": "form-control", "placeholder": "例如：统一社会信用代码"}),
+            "field_key": forms.TextInput(attrs={"class": "form-control", "placeholder": "例如：credit_code"}),
+            "control_type": forms.Select(attrs={"class": "form-select"}),
+            "customer_type": forms.Select(attrs={"class": "form-select"}),
+            "is_required": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "default_value": forms.TextInput(attrs={"class": "form-control"}),
+            "option_values": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "下拉选择时每行一个选项"}),
+            "help_text": forms.TextInput(attrs={"class": "form-control", "placeholder": "输入框提示或业务说明"}),
+            "is_enabled": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
 
@@ -85,6 +274,12 @@ class PolicyForm(forms.ModelForm):
             "remark": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ["customer", "application", "policy_no", "proposal_no"]:
+            if field_name in self.fields:
+                self.fields[field_name].disabled = True
+
 
 class InsuranceApplicationForm(forms.ModelForm):
     class Meta:
@@ -102,7 +297,7 @@ class InsuranceApplicationForm(forms.ModelForm):
         ]
         widgets = {
             "application_no": forms.TextInput(attrs={"class": "form-control"}),
-            "customer": forms.Select(attrs={"class": "form-select"}),
+            "customer": forms.HiddenInput(),
             "insurance_type": forms.Select(attrs={"class": "form-select"}),
             "subject_name": forms.TextInput(attrs={"class": "form-control"}),
             "subject_address": forms.TextInput(attrs={"class": "form-control"}),

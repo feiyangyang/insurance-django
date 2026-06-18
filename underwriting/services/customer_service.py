@@ -24,6 +24,7 @@ def search_customers(keyword):
     if keyword:
         queryset = queryset.filter(
             Q(name__icontains=keyword)
+            | Q(customer_no__icontains=keyword)
             | Q(phone__icontains=keyword)
             | Q(id_number__icontains=keyword)
             | Q(company_name__icontains=keyword)

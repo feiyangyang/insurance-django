@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -7,6 +8,7 @@ class Customer(models.Model):
         ("company", "企业客户"),
     ]
 
+    customer_no = models.CharField("客户ID", max_length=30, unique=True, blank=True)
     customer_type = models.CharField(
         "客户类型",
         max_length=20,
@@ -28,10 +30,191 @@ class Customer(models.Model):
     contact_phone = models.CharField("联系电话", max_length=20, blank=True)
     registered_address = models.CharField("注册地址", max_length=200, blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.customer_no:
+            last_customer = Customer.objects.exclude(customer_no="").order_by("-id").first()
+            next_id = (last_customer.id + 1) if last_customer else 1
+            self.customer_no = f"C{next_id:06d}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.customer_type == "company" and self.company_name:
             return self.company_name
         return self.name
+
+
+class Company(models.Model):
+    name = models.CharField("公司名称", max_length=100)
+    code = models.CharField("公司编码", max_length=50, unique=True)
+    is_active = models.BooleanField("启用", default=True)
+    remark = models.TextField("备注", blank=True)
+    created_at = models.DateTimeField("创建时间", auto_now_add=True)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "公司"
+        verbose_name_plural = "公司"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Department(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="departments", verbose_name="所属公司")
+    name = models.CharField("部门名称", max_length=100)
+    code = models.CharField("部门编码", max_length=50)
+    is_active = models.BooleanField("启用", default=True)
+    remark = models.TextField("备注", blank=True)
+    created_at = models.DateTimeField("创建时间", auto_now_add=True)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "部门"
+        verbose_name_plural = "部门"
+        ordering = ["company__name", "name"]
+        unique_together = ("company", "code")
+
+    def __str__(self):
+        return f"{self.company.name} - {self.name}"
+
+
+class PermissionPoint(models.Model):
+    module = models.CharField("模块", max_length=50)
+    code = models.CharField("权限编码", max_length=100, unique=True)
+    name = models.CharField("权限名称", max_length=100)
+    description = models.CharField("说明", max_length=200, blank=True)
+    sort_order = models.PositiveIntegerField("排序", default=0)
+
+    class Meta:
+        verbose_name = "权限点"
+        verbose_name_plural = "权限点"
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return self.name
+
+
+class SystemRole(models.Model):
+    name = models.CharField("角色名称", max_length=80, unique=True)
+    code = models.SlugField("角色编码", max_length=80, unique=True)
+    permissions = models.ManyToManyField(PermissionPoint, blank=True, related_name="roles", verbose_name="权限点")
+    is_active = models.BooleanField("启用", default=True)
+    remark = models.TextField("备注", blank=True)
+    created_at = models.DateTimeField("创建时间", auto_now_add=True)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "系统角色"
+        verbose_name_plural = "系统角色"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile", verbose_name="登录账号")
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="所属公司")
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="所属部门")
+    roles = models.ManyToManyField(SystemRole, blank=True, related_name="users", verbose_name="角色")
+    remark = models.TextField("备注", blank=True)
+    created_at = models.DateTimeField("创建时间", auto_now_add=True)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "用户资料"
+        verbose_name_plural = "用户资料"
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username
+
+
+class FormTemplate(models.Model):
+    FORM_TYPE_CHOICES = [
+        ("customer", "客户管理表单"),
+        ("application", "投保申请表单"),
+    ]
+    CUSTOMER_TYPE_CHOICES = [
+        ("all", "全部客户"),
+        ("personal", "个人客户"),
+        ("company", "企业客户"),
+    ]
+
+    name = models.CharField("模板名称", max_length=80)
+    code = models.SlugField("模板编码", max_length=80, unique=True)
+    form_type = models.CharField(
+        "配置页面",
+        max_length=30,
+        choices=FORM_TYPE_CHOICES,
+        default="customer",
+    )
+    customer_type = models.CharField(
+        "适用客户类型",
+        max_length=20,
+        choices=CUSTOMER_TYPE_CHOICES,
+        default="all",
+    )
+    description = models.TextField("模板说明", blank=True)
+    is_active = models.BooleanField("启用", default=True)
+    created_at = models.DateTimeField("创建时间", auto_now_add=True)
+    updated_at = models.DateTimeField("更新时间", auto_now=True)
+
+    class Meta:
+        verbose_name = "表单配置"
+        verbose_name_plural = "表单配置"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class FormFieldConfiguration(models.Model):
+    CONTROL_TYPE_CHOICES = [
+        ("text", "单行文本"),
+        ("textarea", "多行文本"),
+        ("number", "数字"),
+        ("select", "下拉选择"),
+        ("date", "日期"),
+        ("checkbox", "勾选框"),
+    ]
+    CUSTOMER_TYPE_CHOICES = FormTemplate.CUSTOMER_TYPE_CHOICES
+
+    template = models.ForeignKey(
+        FormTemplate,
+        on_delete=models.CASCADE,
+        related_name="fields",
+        verbose_name="所属模板",
+    )
+    field_key = models.SlugField("字段标识", max_length=80)
+    field_label = models.CharField("字段名称", max_length=80)
+    control_type = models.CharField(
+        "控件类型",
+        max_length=20,
+        choices=CONTROL_TYPE_CHOICES,
+        default="text",
+    )
+    customer_type = models.CharField(
+        "展示客户类型",
+        max_length=20,
+        choices=CUSTOMER_TYPE_CHOICES,
+        default="all",
+    )
+    is_required = models.BooleanField("是否必填", default=False)
+    default_value = models.CharField("默认内容", max_length=200, blank=True)
+    option_values = models.TextField("选项内容", blank=True, help_text="下拉选择时每行一个选项")
+    help_text = models.CharField("填写提示", max_length=200, blank=True)
+    sort_order = models.PositiveIntegerField("排序", default=0)
+    is_enabled = models.BooleanField("启用", default=True)
+
+    class Meta:
+        verbose_name = "表单字段"
+        verbose_name_plural = "表单字段"
+        ordering = ["sort_order", "id"]
+        unique_together = ("template", "field_key")
+
+    def __str__(self):
+        return f"{self.template.name} - {self.field_label}"
 
 
 class Policy(models.Model):
@@ -226,3 +409,32 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.task.task_no} - {self.decision}"
+
+
+class OperationLog(models.Model):
+    RESULT_CHOICES = [
+        ("success", "成功"),
+        ("failed", "失败"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="操作用户")
+    username = models.CharField("账号快照", max_length=150, blank=True)
+    company_name = models.CharField("公司快照", max_length=100, blank=True)
+    department_name = models.CharField("部门快照", max_length=100, blank=True)
+    module = models.CharField("模块", max_length=50)
+    action = models.CharField("操作", max_length=50)
+    target_type = models.CharField("对象类型", max_length=80, blank=True)
+    target_id = models.CharField("对象ID", max_length=80, blank=True)
+    description = models.CharField("操作说明", max_length=255, blank=True)
+    path = models.CharField("请求路径", max_length=255, blank=True)
+    ip_address = models.GenericIPAddressField("IP地址", null=True, blank=True)
+    result = models.CharField("结果", max_length=20, choices=RESULT_CHOICES, default="success")
+    created_at = models.DateTimeField("操作时间", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "操作日志"
+        verbose_name_plural = "操作日志"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.username or '-'} - {self.module} - {self.action}"

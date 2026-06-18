@@ -7,12 +7,14 @@
             <div class="page-pretitle">Application</div>
             <h2 class="page-title">投保申请管理</h2>
         </div>
+        {% if request.user.is_superuser or 'application.create' in current_permissions %}
         <div class="col-auto ms-auto">
             <a href="{% url 'application_add' %}" class="btn btn-primary btn-sm">
                 <i class="ti ti-plus me-1"></i>
                 新增投保申请
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -67,25 +69,33 @@
                 <td><span class="badge bg-blue-lt">{{ application.get_status_display }}</span></td>
                 <td>
                     <div class="btn-list flex-nowrap">
+                        {% if request.user.is_superuser or 'risk.edit' in current_permissions %}
                         <a href="{% url 'risk_assessment_edit' application.id %}" class="btn btn-sm btn-outline-warning">
                             <i class="ti ti-chart-dots me-1"></i>
                             评估
                         </a>
+                        {% endif %}
+                        {% if request.user.is_superuser or 'underwriting.create' in current_permissions %}
                         <a href="{% url 'underwriting_task_add' %}?application={{ application.id }}"
                            class="btn btn-sm btn-outline-success">
                             <i class="ti ti-checklist me-1"></i>
                             核保
                         </a>
+                        {% endif %}
+                        {% if request.user.is_superuser or 'application.edit' in current_permissions %}
                         <a href="{% url 'application_edit' application.id %}" class="btn btn-sm btn-outline-primary">
                             <i class="ti ti-edit me-1"></i>
                             编辑
                         </a>
+                        {% endif %}
+                        {% if request.user.is_superuser or 'application.delete' in current_permissions %}
                         <a href="{% url 'application_delete' application.id %}"
                            class="btn btn-sm btn-outline-danger"
                            onclick="return confirm('确认删除该投保申请吗？')">
                             <i class="ti ti-trash me-1"></i>
                             删除
                         </a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

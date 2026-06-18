@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
     path("", views.dashboard, name="dashboard"),
 
     path("customer/", views.customer_list, name="customer_list"),
@@ -32,5 +34,13 @@ urlpatterns = [
     path("policy/<int:policy_id>/edit/", views.policy_edit, name="policy_edit"),
     path("policy/<int:policy_id>/delete/", views.policy_delete, name="policy_delete"),
 
+    path("system/form-config/", views.form_configuration, name="form_configuration"),
+    path("system/users/", views.user_management, name="user_management"),
+    path("system/roles/", views.role_permission_management, name="role_permission_management"),
+    path("system/companies/", views.company_management, name="company_management"),
+    path("system/departments/", views.department_management, name="department_management"),
+    path("system/operation-log/", views.operation_log_list, name="operation_log_list"),
+    path("knowledge-agent/", views.knowledge_agent, name="knowledge_agent"),
+    path("help-center/", views.help_center, name="help_center"),
     path("system/db-check/", views.system_db_check, name="system_db_check"),
 ]

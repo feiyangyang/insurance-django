@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>财险人工核保流程培训图</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --line: #d8e0ea;
+            --text: #182433;
+            --muted: #667085;
+            --blue: #2563eb;
+            --cyan: #0891b2;
+            --green: #16a34a;
+            --yellow: #ca8a04;
+            --orange: #ea580c;
+            --red: #dc2626;
+            --purple: #7c3aed;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .page {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #14213d, #1d4ed8);
+            border-radius: 16px;
+            color: #fff;
+            padding: 28px;
+            margin-bottom: 22px;
+            box-shadow: 0 14px 34px rgba(29, 78, 216, .18);
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .hero p {
+            margin: 0;
+            color: rgba(255, 255, 255, .78);
+        }
+
+        .section {
+            margin-top: 22px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .section-title span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #dbeafe;
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .04);
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(150px, 1fr));
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .step {
+            position: relative;
+            min-height: 112px;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--blue);
+            border-radius: 12px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .step:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            top: 42px;
+            right: -16px;
+            color: #94a3b8;
+            font-size: 22px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .step .no {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .04em;
+        }
+
+        .step h3 {
+            margin: 6px 0 8px;
+            font-size: 16px;
+        }
+
+        .step p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .step.blue { border-top-color: var(--blue); }
+        .step.cyan { border-top-color: var(--cyan); }
+        .step.orange { border-top-color: var(--orange); }
+        .step.purple { border-top-color: var(--purple); }
+        .step.green { border-top-color: var(--green); }
+
+        .decision-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.5fr;
+            gap: 16px;
+        }
+
+        .decision-card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            background: #fff;
+        }
+
+        .decision-card h3 {
+            margin: 0 0 12px;
+            font-size: 16px;
+        }
+
+        .result-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .pill {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border: 1px solid var(--line);
+        }
+
+        .pill strong {
+            white-space: nowrap;
+        }
+
+        .pill small {
+            color: var(--muted);
+        }
+
+        .pill.ok { border-left: 4px solid var(--green); }
+        .pill.danger { border-left: 4px solid var(--red); }
+        .pill.warn { border-left: 4px solid var(--yellow); }
+        .pill.info { border-left: 4px solid var(--blue); }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .module {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            padding: 16px;
+        }
+
+        .module h3 {
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .icon.blue { background: var(--blue); }
+        .icon.cyan { background: var(--cyan); }
+        .icon.green { background: var(--green); }
+        .icon.orange { background: var(--orange); }
+        .icon.red { background: var(--red); }
+        .icon.purple { background: var(--purple); }
+        .icon.yellow { background: var(--yellow); }
+
+        ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+        }
+
+        .swimlane {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .lane-role {
+            background: #f8fafc;
+            border-right: 1px solid var(--line);
+            padding: 14px;
+            font-weight: 700;
+        }
+
+        .lane-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .action {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: #fff;
+            color: #344054;
+            font-size: 13px;
+        }
+
+        .data-map {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(150px, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
+
+        .entity {
+            min-height: 150px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .entity h3 {
+            margin: 0;
+            padding: 10px 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 15px;
+        }
+
+        .entity ul {
+            padding: 10px 12px 12px 28px;
+        }
+
+        .tips {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .tip {
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 14px;
+        }
+
+        .tip strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .tip p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        @media (max-width: 980px) {
+            .flow,
+            .modules,
+            .data-map,
+            .tips,
+            .decision-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step:not(:last-child)::after {
+                content: "↓";
+                right: 50%;
+                top: auto;
+                bottom: -22px;
+            }
+
+            .swimlane {
+                grid-template-columns: 1fr;
+            }
+
+            .lane-role {
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <section class="hero">
+        <h1>财险人工核保流程培训图</h1>
+        <p>用一张可视化页面讲清楚：谁录入、谁评估、谁核保、怎么留痕、什么时候生成保单。</p>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>1</span>一眼看懂主流程</h2>
+        <div class="panel">
+            <div class="flow">
+                <div class="step blue">
+                    <div class="no">STEP 01</div>
+                    <h3>客户建档</h3>
+                    <p>录入个人客户或企业客户，作为后续投保申请的主体。</p>
+                </div>
+                <div class="step cyan">
+                    <div class="no">STEP 02</div>
+                    <h3>投保申请</h3>
+                    <p>登记申请号、险种、标的、保额、预估保费和申请状态。</p>
+                </div>
+                <div class="step orange">
+                    <div class="no">STEP 03</div>
+                    <h3>风险评估</h3>
+                    <p>录入风险等级、评分、风险因素和评估结论。</p>
+                </div>
+                <div class="step purple">
+                    <div class="no">STEP 04</div>
+                    <h3>人工核保</h3>
+                    <p>创建任务，查看详情，提交通过、拒保或补充资料等结论。</p>
+                </div>
+                <div class="step green">
+                    <div class="no">STEP 05</div>
+                    <h3>生成保单</h3>
+                    <p>核保通过后从投保申请生成正式保单，并自动留下记录。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>2</span>核保结论怎么流转</h2>
+        <div class="decision-grid">
+            <div class="decision-card">
+                <h3>核保人员在详情页看到什么</h3>
+                <ul>
+                    <li>投保申请信息</li>
+                    <li>客户信息和保险标的</li>
+                    <li>风险评估等级和评分</li>
+                    <li>健康/风险告知与任务备注</li>
+                    <li>历史审核记录</li>
+                </ul>
+            </div>
+            <div class="decision-card">
+                <h3>提交结论后的结果</h3>
+                <div class="result-list">
+                    <div class="pill ok"><strong>通过</strong><small>申请通过，可生成保单</small></div>
+                    <div class="pill danger"><strong>拒保</strong><small>申请拒绝，流程终止</small></div>
+                    <div class="pill warn"><strong>补充资料</strong><small>退回等待补充材料</small></div>
+                    <div class="pill info"><strong>加费</strong><small>保持核保中，等待处理</small></div>
+                    <div class="pill info"><strong>除外</strong><small>保持核保中，记录条件</small></div>
+                    <div class="pill info"><strong>延期</strong><small>保持核保中，后续再审</small></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>3</span>功能模块脑图</h2>
+        <div class="modules">
+            <div class="module">
+                <h3><span class="icon blue">客</span>客户管理</h3>
+                <ul>
+                    <li>个人客户</li>
+                    <li>企业客户</li>
+                    <li>客户搜索</li>
+                    <li>客户资料维护</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon cyan">申</span>投保申请</h3>
+                <ul>
+                    <li>申请号</li>
+                    <li>险种类型</li>
+                    <li>保险标的</li>
+                    <li>金额与状态</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon orange">险</span>风险评估</h3>
+                <ul>
+                    <li>风险等级</li>
+                    <li>风险评分</li>
+                    <li>风险因素</li>
+                    <li>评估结论</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon purple">核</span>核保任务</h3>
+                <ul>
+                    <li>创建任务</li>
+                    <li>查看详情</li>
+                    <li>提交结论</li>
+                    <li>同步申请状态</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon yellow">记</span>审核记录</h3>
+                <ul>
+                    <li>操作类型</li>
+                    <li>状态变化</li>
+                    <li>操作人</li>
+                    <li>审核意见</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon green">保</span>保单管理</h3>
+                <ul>
+                    <li>核保通过生成保单</li>
+                    <li>来源申请关联</li>
+                    <li>保单状态</li>
+                    <li>保单维护</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon red">板</span>工作台</h3>
+                <ul>
+                    <li>流程统计</li>
+                    <li>风险看板</li>
+                    <li>最新任务</li>
+                    <li>最新申请</li>
+                </ul>
+            </div>
+            <div class="module">
+                <h3><span class="icon blue">检</span>系统检测</h3>
+                <ul>
+                    <li>数据库引擎</li>
+                    <li>DATABASE_URL</li>
+                    <li>核心数据量</li>
+                    <li>部署检查</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>4</span>角色泳道图</h2>
+        <div class="panel" style="display: grid; gap: 12px;">
+            <div class="swimlane">
+                <div class="lane-role">业务录入人员</div>
+                <div class="lane-actions">
+                    <span class="action">维护客户</span>
+                    <span class="action">新增投保申请</span>
+                    <span class="action">补充申请资料</span>
+                </div>
+            </div>
+            <div class="swimlane">
+                <div class="lane-role">风险评估人员</div>
+                <div class="lane-actions">
+                    <span class="action">查看申请</span>
+                    <span class="action">评估风险等级</span>
+                    <span class="action">填写评估结论</span>
+                </div>
+            </div>
+            <div class="swimlane">
+                <div class="lane-role">核保人员</div>
+                <div class="lane-actions">
+                    <span class="action">创建核保任务</span>
+                    <span class="action">查看核保详情</span>
+                    <span class="action">提交核保结论</span>
+                </div>
+            </div>
+            <div class="swimlane">
+                <div class="lane-role">复核/管理人员</div>
+                <div class="lane-actions">
+                    <span class="action">查看审核记录</span>
+                    <span class="action">查看风险看板</span>
+                    <span class="action">追踪流程状态</span>
+                </div>
+            </div>
+            <div class="swimlane">
+                <div class="lane-role">出单人员</div>
+                <div class="lane-actions">
+                    <span class="action">核保通过后生成保单</span>
+                    <span class="action">维护保单信息</span>
+                    <span class="action">查看来源申请</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>5</span>数据关系速览</h2>
+        <div class="data-map">
+            <div class="entity">
+                <h3>Customer 客户</h3>
+                <ul>
+                    <li>个人客户</li>
+                    <li>企业客户</li>
+                    <li>投保主体</li>
+                </ul>
+            </div>
+            <div class="entity">
+                <h3>Application 申请</h3>
+                <ul>
+                    <li>流程主单</li>
+                    <li>关联客户</li>
+                    <li>承载标的</li>
+                </ul>
+            </div>
+            <div class="entity">
+                <h3>Risk 风险</h3>
+                <ul>
+                    <li>一份申请一份评估</li>
+                    <li>等级与评分</li>
+                    <li>核保输入</li>
+                </ul>
+            </div>
+            <div class="entity">
+                <h3>Task 任务</h3>
+                <ul>
+                    <li>核保处理单</li>
+                    <li>提交结论</li>
+                    <li>同步状态</li>
+                </ul>
+            </div>
+            <div class="entity">
+                <h3>Audit 留痕</h3>
+                <ul>
+                    <li>记录结论</li>
+                    <li>记录状态变化</li>
+                    <li>记录生成保单</li>
+                </ul>
+            </div>
+            <div class="entity">
+                <h3>Policy 保单</h3>
+                <ul>
+                    <li>核保通过后生成</li>
+                    <li>关联来源申请</li>
+                    <li>正式业务结果</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><span>6</span>培训讲解重点</h2>
+        <div class="tips">
+            <div class="tip">
+                <strong>先讲主线</strong>
+                <p>客户、申请、风险、核保、保单是一条完整链路，不要从单个菜单孤立讲。</p>
+            </div>
+            <div class="tip">
+                <strong>再讲状态</strong>
+                <p>核保结论会改变任务状态，也会同步投保申请状态。</p>
+            </div>
+            <div class="tip">
+                <strong>最后讲留痕</strong>
+                <p>结论提交和生成保单都会写入审核记录，便于追溯。</p>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

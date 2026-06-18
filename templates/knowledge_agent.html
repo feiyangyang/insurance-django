@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Knowledge</div>
+            <h2 class="page-title">企业内部知识库 Agent</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <span class="badge bg-yellow-lt">预留入口</span>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">规则检索</h3>
+            </div>
+            <div class="card-body">
+                <div class="input-icon mb-3">
+                    <span class="input-icon-addon"><i class="ti ti-search"></i></span>
+                    <input type="text" class="form-control" placeholder="输入业务规则、核保口径或企业制度关键词" disabled>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="fw-semibold mb-1">核保规则</div>
+                            <div class="text-muted small">承保限制、加费、除外、延期等规则。</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="fw-semibold mb-1">企业制度</div>
+                            <div class="text-muted small">内部流程、权限边界、审批要求。</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="fw-semibold mb-1">问答助手</div>
+                            <div class="text-muted small">后续接入知识库后提供问答和引用来源。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">接入状态</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="status status-yellow"></span>
+                    知识库服务待接入
+                </div>
+                <div class="text-muted small">当前先保留菜单和页面位置，后续可接入文档上传、规则标签、语义检索和答案溯源。</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

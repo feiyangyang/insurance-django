@@ -7,12 +7,14 @@
             <div class="page-pretitle">Customer</div>
             <h2 class="page-title">客户信息管理</h2>
         </div>
+        {% if request.user.is_superuser or 'customer.create' in current_permissions %}
         <div class="col-auto ms-auto">
             <a href="{% url 'customer_add' %}" class="btn btn-primary btn-sm">
                 <i class="ti ti-plus me-1"></i>
                 新增客户
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -22,7 +24,7 @@
         <div class="card-actions">
             <form method="get" class="d-flex gap-2">
                 <input type="text" name="keyword" value="{{ keyword }}" class="form-control form-control-sm"
-                       placeholder="搜索姓名、企业、证件号、联系人">
+                       placeholder="搜索客户ID、姓名、企业、证件号、联系人">
                 <button class="btn btn-outline-primary btn-sm" type="submit">
                     <i class="ti ti-search me-1"></i>
                     查询
@@ -35,6 +37,7 @@
             <thead>
             <tr>
                 <th>客户名称</th>
+                <th>客户ID</th>
                 <th>客户类型</th>
                 <th>性别</th>
                 <th>年龄</th>
@@ -53,6 +56,7 @@
                         {{ customer.name }}
                     {% endif %}
                 </td>
+                <td class="font-monospace">{{ customer.customer_no }}</td>
                 <td><span class="badge bg-blue-lt">{{ customer.get_customer_type_display }}</span></td>
                 <td>{{ customer.gender|default:"-" }}</td>
                 <td>{{ customer.age|default:"-" }}</td>
@@ -72,22 +76,26 @@
                 </td>
                 <td>
                     <div class="btn-list flex-nowrap">
+                        {% if request.user.is_superuser or 'customer.edit' in current_permissions %}
                         <a href="{% url 'customer_edit' customer.id %}" class="btn btn-sm btn-outline-primary">
                             <i class="ti ti-edit me-1"></i>
                             编辑
                         </a>
+                        {% endif %}
+                        {% if request.user.is_superuser or 'customer.delete' in current_permissions %}
                         <a href="{% url 'customer_delete' customer.id %}"
                            class="btn btn-sm btn-outline-danger"
                            onclick="return confirm('确认删除该客户吗？')">
                             <i class="ti ti-trash me-1"></i>
                             删除
                         </a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-center text-muted py-4">暂无客户数据</td>
+                <td colspan="8" class="text-center text-muted py-4">暂无客户数据</td>
             </tr>
             {% endfor %}
             </tbody>

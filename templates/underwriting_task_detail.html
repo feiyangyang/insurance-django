@@ -151,28 +151,6 @@
             </div>
         </form>
 
-        {% if task.status == "approved" and task.application %}
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h3 class="card-title">保单生成</h3>
-                </div>
-                <div class="card-body">
-                    {% if task.policy %}
-                        <div class="alert alert-success mb-0">
-                            已生成保单：<span class="font-monospace">{{ task.policy.policy_no }}</span>
-                        </div>
-                    {% elif can_generate_policy %}
-                        <a href="{% url 'generate_policy' task.id %}" class="btn btn-success">
-                            <i class="ti ti-file-plus me-1"></i>
-                            生成保单
-                        </a>
-                    {% else %}
-                        <div class="text-muted">当前任务暂不可生成保单</div>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-
         <div class="card mt-3">
             <div class="card-header">
                 <h3 class="card-title">审核记录</h3>

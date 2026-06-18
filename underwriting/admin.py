@@ -3,17 +3,30 @@ from django.contrib import admin
 # Register your models here.
 from .models import (
     AuditLog,
+    Company,
     Customer,
+    Department,
+    FormFieldConfiguration,
+    FormTemplate,
+    OperationLog,
+    PermissionPoint,
     InsuranceApplication,
     Policy,
     RiskAssessment,
+    SystemRole,
     UnderwritingTask,
+    UserProfile,
 )
+
+admin.site.site_header = "保险人工核保系统后台"
+admin.site.site_title = "保险核保后台"
+admin.site.index_title = "系统后台"
 
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = (
+        "customer_no",
         "name",
         "customer_type",
         "company_name",
@@ -23,6 +36,7 @@ class CustomerAdmin(admin.ModelAdmin):
     )
     list_filter = ("customer_type",)
     search_fields = (
+        "customer_no",
         "name",
         "phone",
         "id_number",
@@ -31,6 +45,88 @@ class CustomerAdmin(admin.ModelAdmin):
         "contact_person",
         "contact_phone",
     )
+
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "is_active")
+    search_fields = ("name", "code", "remark")
+    list_filter = ("is_active",)
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ("name", "company", "code", "is_active")
+    search_fields = ("name", "code", "company__name", "remark")
+    list_filter = ("company", "is_active")
+
+
+@admin.register(PermissionPoint)
+class PermissionPointAdmin(admin.ModelAdmin):
+    list_display = ("module", "name", "code", "sort_order")
+    search_fields = ("module", "name", "code")
+    list_filter = ("module",)
+
+
+@admin.register(SystemRole)
+class SystemRoleAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "is_active")
+    search_fields = ("name", "code", "remark")
+    list_filter = ("is_active",)
+    filter_horizontal = ("permissions",)
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "company", "department")
+    search_fields = ("user__username", "user__first_name", "company__name", "department__name", "remark")
+    filter_horizontal = ("roles",)
+
+
+class FormFieldConfigurationInline(admin.TabularInline):
+    model = FormFieldConfiguration
+    extra = 1
+    fields = (
+        "sort_order",
+        "field_label",
+        "field_key",
+        "control_type",
+        "customer_type",
+        "is_required",
+        "default_value",
+        "option_values",
+        "is_enabled",
+    )
+
+
+@admin.register(FormTemplate)
+class FormTemplateAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "code",
+        "form_type",
+        "customer_type",
+        "is_active",
+        "updated_at",
+    )
+    list_filter = ("form_type", "customer_type", "is_active")
+    search_fields = ("name", "code", "description", "fields__field_label")
+    inlines = [FormFieldConfigurationInline]
+
+
+@admin.register(FormFieldConfiguration)
+class FormFieldConfigurationAdmin(admin.ModelAdmin):
+    list_display = (
+        "template",
+        "sort_order",
+        "field_label",
+        "control_type",
+        "customer_type",
+        "is_required",
+        "is_enabled",
+    )
+    list_filter = ("template", "control_type", "customer_type", "is_required", "is_enabled")
+    search_fields = ("template__name", "field_key", "field_label", "help_text")
 
 
 
@@ -134,3 +230,10 @@ class AuditLogAdmin(admin.ModelAdmin):
     )
     list_filter = ("action", "to_status")
     search_fields = ("task__task_no", "operator", "decision", "comment")
+
+
+@admin.register(OperationLog)
+class OperationLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "username", "module", "action", "target_type", "target_id", "result")
+    list_filter = ("module", "action", "result")
+    search_fields = ("username", "description", "target_type", "target_id")

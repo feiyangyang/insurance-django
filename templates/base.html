@@ -45,6 +45,18 @@
             color: #ffffff;
         }
 
+        .navbar-vertical .nav-section-title {
+            color: #8fa4ba;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            padding: .75rem 1rem .35rem;
+        }
+
+        .navbar-vertical .nav-link.nav-link-child {
+            padding-left: 2.75rem;
+        }
+
         .page-wrapper {
             margin-left: 15rem;
         }
@@ -184,16 +196,59 @@
                             <span class="nav-link-title">审核记录</span>
                         </a>
                     </li>
-                    <li class="nav-item {% if request.path == '/system/db-check/' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'system_db_check' %}">
-                            <span class="nav-link-icon"><i class="ti ti-database-search"></i></span>
-                            <span class="nav-link-title">系统检测</span>
+                    <li class="nav-item {% if request.path == '/knowledge-agent/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'knowledge_agent' %}">
+                            <span class="nav-link-icon"><i class="ti ti-brain"></i></span>
+                            <span class="nav-link-title">知识库 Agent</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/">
-                            <span class="nav-link-icon"><i class="ti ti-settings"></i></span>
-                            <span class="nav-link-title">系统后台</span>
+                    <li class="nav-item {% if request.path == '/help-center/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'help_center' %}">
+                            <span class="nav-link-icon"><i class="ti ti-help-circle"></i></span>
+                            <span class="nav-link-title">帮助中心</span>
+                        </a>
+                    </li>
+                    <li class="nav-section-title">系统后台</li>
+                    <li class="nav-item {% if request.path == '/system/form-config/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'form_configuration' %}">
+                            <span class="nav-link-icon"><i class="ti ti-forms"></i></span>
+                            <span class="nav-link-title">表单配置</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/users/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'user_management' %}">
+                            <span class="nav-link-icon"><i class="ti ti-user-cog"></i></span>
+                            <span class="nav-link-title">用户管理</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/roles/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'role_permission_management' %}">
+                            <span class="nav-link-icon"><i class="ti ti-lock-access"></i></span>
+                            <span class="nav-link-title">角色权限</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/companies/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'company_management' %}">
+                            <span class="nav-link-icon"><i class="ti ti-building"></i></span>
+                            <span class="nav-link-title">公司管理</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/departments/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'department_management' %}">
+                            <span class="nav-link-icon"><i class="ti ti-sitemap"></i></span>
+                            <span class="nav-link-title">部门管理</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/operation-log/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'operation_log_list' %}">
+                            <span class="nav-link-icon"><i class="ti ti-history"></i></span>
+                            <span class="nav-link-title">操作日志</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/system/db-check/' %}active{% endif %}">
+                        <a class="nav-link nav-link-child" href="{% url 'system_db_check' %}">
+                            <span class="nav-link-icon"><i class="ti ti-database-search"></i></span>
+                            <span class="nav-link-title">系统检测</span>
                         </a>
                     </li>
                 </ul>
@@ -206,7 +261,11 @@
             <div class="container-xl">
                 <div class="navbar-nav flex-row order-md-last ms-auto">
                     <div class="nav-item">
-                        <span class="badge bg-blue-lt">Django SSR</span>
+                        <span class="badge bg-blue-lt me-2">{{ request.user.username }}</span>
+                        <a class="btn btn-outline-secondary btn-sm" href="{% url 'logout' %}">
+                            <i class="ti ti-logout me-1"></i>
+                            退出
+                        </a>
                     </div>
                 </div>
                 <div>
@@ -218,11 +277,19 @@
 
         <main class="page-body">
             <div class="container-xl">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} py-2">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
                 {% block content %}{% endblock %}
             </div>
         </main>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js" defer></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

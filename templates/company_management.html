@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">System Backend</div>
+            <h2 class="page-title">公司管理</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <a class="btn btn-primary btn-sm" href="{% url 'company_management' %}">
+                <i class="ti ti-plus me-1"></i>新建公司
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter table-sm card-table">
+                    <thead><tr><th>公司名称</th><th>编码</th><th>状态</th><th>备注</th><th></th></tr></thead>
+                    <tbody>
+                    {% for company in companies %}
+                    <tr class="{% if selected_company and selected_company.id == company.id %}table-active{% endif %}">
+                        <td class="fw-semibold">{{ company.name }}</td>
+                        <td class="font-monospace">{{ company.code }}</td>
+                        <td>{% if company.is_active %}<span class="badge bg-green-lt">启用</span>{% else %}<span class="badge bg-secondary-lt">停用</span>{% endif %}</td>
+                        <td class="text-muted">{{ company.remark|default:"-" }}</td>
+                        <td><a class="btn btn-ghost-primary btn-sm" href="{% url 'company_management' %}?company={{ company.id }}">编辑</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">暂无公司</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <form method="post" class="card">
+            {% csrf_token %}
+            <div class="card-header"><h3 class="card-title">{% if selected_company %}编辑公司{% else %}新建公司{% endif %}</h3></div>
+            <div class="card-body">
+                {{ form.non_field_errors }}
+                <div class="mb-3">{{ form.name.label_tag }}{{ form.name }}{{ form.name.errors }}</div>
+                <div class="mb-3">{{ form.code.label_tag }}{{ form.code }}{{ form.code.errors }}</div>
+                <div class="mb-3">{{ form.remark.label_tag }}{{ form.remark }}{{ form.remark.errors }}</div>
+                <label class="form-check">{{ form.is_active }}<span class="form-check-label">{{ form.is_active.label }}</span></label>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                {% if selected_company %}
+                <button class="btn btn-outline-danger" name="action" value="delete" onclick="return confirm('确认删除该公司？');">删除</button>
+                {% else %}<span></span>{% endif %}
+                <button class="btn btn-primary" type="submit">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

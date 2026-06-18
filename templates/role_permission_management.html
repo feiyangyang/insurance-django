@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col"><div class="page-pretitle">System Backend</div><h2 class="page-title">角色权限</h2></div>
+        <div class="col-auto ms-auto"><a class="btn btn-primary btn-sm" href="{% url 'role_permission_management' %}"><i class="ti ti-plus me-1"></i>新建角色</a></div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="list-group list-group-flush">
+                {% for role in roles %}
+                <a class="list-group-item list-group-item-action {% if selected_role and selected_role.id == role.id %}active{% endif %}" href="{% url 'role_permission_management' %}?role={{ role.id }}">
+                    <div class="fw-semibold">{{ role.name }}</div>
+                    <div class="small text-muted">{{ role.code }} · {{ role.permissions.count }} 个权限</div>
+                </a>
+                {% empty %}
+                <div class="empty py-4"><p class="empty-title">暂无角色</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <form method="post" class="card">
+            {% csrf_token %}
+            <div class="card-header"><h3 class="card-title">{% if selected_role %}编辑角色权限{% else %}新建角色{% endif %}</h3></div>
+            <div class="card-body">
+                {{ form.non_field_errors }}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">{{ form.name.label_tag }}{{ form.name }}{{ form.name.errors }}</div>
+                    <div class="col-md-6">{{ form.code.label_tag }}{{ form.code }}{{ form.code.errors }}</div>
+                    <div class="col-12">{{ form.remark.label_tag }}{{ form.remark }}{{ form.remark.errors }}</div>
+                    <div class="col-12"><label class="form-check">{{ form.is_active }}<span class="form-check-label">{{ form.is_active.label }}</span></label></div>
+                </div>
+                <div class="row row-cards">
+                    {% for module, permissions in permissions_by_module.items %}
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="fw-semibold mb-2">{{ module }}</div>
+                            {% for permission in permissions %}
+                            <label class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions" value="{{ permission.id }}"
+                                       {% if selected_role and permission in selected_role.permissions.all %}checked{% endif %}>
+                                <span class="form-check-label">{{ permission.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                {% if selected_role %}<button name="action" value="delete" class="btn btn-outline-danger" onclick="return confirm('确认删除该角色？');">删除</button>{% else %}<span></span>{% endif %}
+                <button class="btn btn-primary" type="submit">保存角色</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
